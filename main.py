@@ -1,41 +1,172 @@
-import os
-
-# The decky plugin module is located at decky-loader/plugin
-# For easy intellisense checkout the decky-loader code one directory up
-# or add the `decky-loader/plugin` path to `python.analysis.extraPaths` in `.vscode/settings.json`
-import decky_plugin
+import subprocess
+import re
 
 
-class Plugin:
-    # A normal method. It can be called from JavaScript using call_plugin_function("method_1", argument1, argument2)
-    async def add(self, left, right):
-        return left + right
+class NordVPN:
+    def __init__(self):
+        return
 
-    # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
-    async def _main(self):
-        decky_plugin.logger.info("Hello World!")
+    def execute(self, command):
+        return subprocess.run(command, capture_output=True, text=True).stdout
 
-    # Function called first during the unload process, utilize this to handle your plugin being removed
-    async def _unload(self):
-        decky_plugin.logger.info("Goodbye World!")
-        pass
+    def isInstalled(self):
+        try:
+            self.execute(["nordvpn"])
+            return True
+        except Exception:
+            return False
 
-    # Migrations that should be performed before entering `_main()`.
-    async def _migration(self):
-        decky_plugin.logger.info("Migrating")
-        # Here's a migration example for logs:
-        # - `~/.config/decky-template/template.log` will be migrated to `decky_plugin.DECKY_PLUGIN_LOG_DIR/template.log`
-        decky_plugin.migrate_logs(os.path.join(decky_plugin.DECKY_USER_HOME,
-                                               ".config", "decky-template", "template.log"))
-        # Here's a migration example for settings:
-        # - `~/homebrew/settings/template.json` is migrated to `decky_plugin.DECKY_PLUGIN_SETTINGS_DIR/template.json`
-        # - `~/.config/decky-template/` all files and directories under this root are migrated to `decky_plugin.DECKY_PLUGIN_SETTINGS_DIR/`
-        decky_plugin.migrate_settings(
-            os.path.join(decky_plugin.DECKY_HOME, "settings", "template.json"),
-            os.path.join(decky_plugin.DECKY_USER_HOME, ".config", "decky-template"))
-        # Here's a migration example for runtime data:
-        # - `~/homebrew/template/` all files and directories under this root are migrated to `decky_plugin.DECKY_PLUGIN_RUNTIME_DIR/`
-        # - `~/.local/share/decky-template/` all files and directories under this root are migrated to `decky_plugin.DECKY_PLUGIN_RUNTIME_DIR/`
-        decky_plugin.migrate_runtime(
-            os.path.join(decky_plugin.DECKY_HOME, "template"),
-            os.path.join(decky_plugin.DECKY_USER_HOME, ".local", "share", "decky-template"))
+    def getVersion(self):
+        return re.search(r"\d+(\.\d+)+", self.execute(["nordvpn", "version"])).group()
+
+    def getAccount(self):
+        return self.Account(self)
+
+    def getCountries(self):
+        return self.execute(["nordvpn", "countries"]).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
+
+    def getCities(self, country):
+        if country == None: return "NoCountrySelected"
+        return self.execute(["nordvpn", "cities", country]).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
+
+    def isConnected(self):
+        return not self.execute(["nordvpn", "status"]).__contains__("Disconnected")
+
+    def getConnection(self):
+        return self.Connection(self)
+
+    def getSettings(self):
+        return self.Settings(self)
+
+    class Connection:
+        def __init__(self, instance):
+            self.nordvpn = instance
+
+        def disconnect(self):
+            self.nordvpn.execute(["nordvpn", "disconnect"])
+
+        def autoConnect(self):
+            self.nordvpn.execute(["nordvpn", "connect"])
+
+        def connect(self, country, city):
+            self.nordvpn.execute(["nordvpn", "connect", country, city])
+
+    class Settings:
+        def __init__(self, instance):
+            self.nordvpn = instance
+            self.parseSettings()
+
+        def set(self, name, value):
+            if(value):
+                value = "enabled"
+            else:
+                value = "disabled"
+            self.nordvpn.execute(["nordvpn", "set", name, value])
+
+        def getSettingsRaw(self):
+            return "Technology:" + self.nordvpn.execute(["nordvpn", "settings"]).split("Technology:")[1]
+
+        def parseSettings(self):
+            self.settings = []
+            for line in self.getSettingsRaw().split("\n"):
+                if line.__contains__("Technology:"): continue
+                if line.__contains__("Firewall Mark:"): continue
+                if line.__contains__("Meshnet:"): continue
+                if line.__contains__("DNS:"): continue
+                if line.__eq__(""): continue
+
+                state = line.split(": ")[1]
+                if(state.__eq__("enabled")):
+                    state = True
+                else:
+                    state = False
+                self.settings.append(state)
+
+        def getFirewall(self):
+            return self.settings[0]
+
+        def getRouting(self):
+            return self.settings[1]
+
+        def getAnalytics(self):
+            return self.settings[2]
+
+        def getKillSwitch(self):
+            return self.settings[3]
+
+        def getThreatProtectionLite(self):
+            return self.settings[4]
+
+        def getNotify(self):
+            return self.settings[5]
+
+        def getAutoConnect(self):
+            return self.settings[6]
+
+        def getIPv6(self):
+            return self.settings[7]
+
+        def getLanDiscovery(self):
+            return self.settings[8]
+
+        def setFirewall(self, state):
+            self.set("firewall", state)
+
+        def setRouting(self, state):
+            self.set("routing", state)
+
+        def setAnalytics(self, state):
+            self.set("analytics", state)
+
+        def killSwitch(self, state):
+            self.set("killswitch", state)
+
+        def setThreatProtectionLite(self, state):
+            self.set("threatprotectionlite", state)
+
+        def setNotify(self, state):
+            self.set("notify", state)
+
+        def setAutoConnect(self, state):
+            self.set("autoconnect", state)
+
+        def setIPv6(self, state):
+            self.set("ipv6", state)
+
+        def setLanDiscovery(self, state):
+            self.set("lan-discovery", state)
+
+        def resetDefaults(self):
+            self.nordvpn.execute(["nordvpn", "set", "defaults"])
+
+
+
+    class Account:
+        def __init__(self, instance):
+            self.nordvpn = instance
+
+        def isLoggedIn(self):
+            return not self.nordvpn.execute(["nordvpn", "account"]).__contains__("You are not logged in.")
+
+        def login(self):
+            ret = self.nordvpn.execute(["nordvpn", "login"]).replace("Continue in the browser: ", "")
+            if ret.__contains__("You are already"):
+                return "AlreadyLoggedIn"
+            else:
+                return re.search(r"(?P<url>https?://[^\s]*)", ret).group()
+
+        def logout(self):
+            try:
+                self.nordvpn.execute(["nordvpn", "logout"])
+                return True
+            except subprocess.CalledProcessError:
+                return False
+
+        def getEmail(self):
+            return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", self.nordvpn.execute(["nordvpn", "account"])).group()
+
+        def isSubscriptionActive(self):
+            return self.nordvpn.execute(["nordvpn", "account"]).__contains__("VPN Service: Active")
+
+        def getSubscriptionExpireDate(self):
+            return self.nordvpn.execute(["nordvpn", "account"]).split("Expires on ")[1].replace(")", "")
