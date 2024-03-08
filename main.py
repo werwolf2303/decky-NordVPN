@@ -3,7 +3,6 @@ import re
 
 
 class Plugin:
-
     def execute(self, command):
         return subprocess.run(command, capture_output=True, text=True).stdout
 
@@ -17,9 +16,6 @@ class Plugin:
     def getVersion(self):
         return re.search(r"\d+(\.\d+)+", self.execute(["nordvpn", "version"])).group()
 
-    def getAccount(self):
-        return self.Account(self)
-
     def getCountries(self):
         return self.execute(["nordvpn", "countries"]).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
 
@@ -29,12 +25,6 @@ class Plugin:
 
     def isConnected(self):
         return not self.execute(["nordvpn", "status"]).__contains__("Disconnected")
-
-    def getConnection(self):
-        return self.Connection(self)
-
-    def getSettings(self):
-        return self.Settings(self)
         
     def disconnect(self):
             self.execute(["nordvpn", "disconnect"])
