@@ -9,17 +9,10 @@ logging.basicConfig(filename="/tmp/nordvpndeck.log",
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 class Plugin:
-
-    async def execute(self, command):
-        out = subprocess.run(command).stdout
-        logger.info("Command '" + command + "' returned: " + out)
-        return out
-
     async def isInstalled(self):
         try:
-            str(self.execute(self, ["nordvpn"]))
+            str(subprocess.run(["nordvpn"], capture_output=True, text=True).stdout)
             logger.info("Is installed: True")
             return True
         except Exception:
@@ -27,41 +20,46 @@ class Plugin:
             return False
 
     async def getVersion(self):
-        ver = re.search(r"\d+(\.\d+)+", str(self.execute(self, ["nordvpn", "version"]))).group()
+        subprocess.run(["nordvpn", "version"], capture_output=True, text=True).stdout
+        ver = re.search(r"\d+(\.\d+)+", str(subprocess.run(["nordvpn", "version"], capture_output=True, text=True).stdout)).group()
         logger.info("Returned version: " + ver)
         return ver
 
     async def getCountries(self):
-        logger.info("Get countries returned: " + str(self.execute(self, ["nordvpn", "countries"])).replace("-", "").replace("\n", "").replace("    ", ""))
-        return str(self.execute(self, ["nordvpn", "countries"])).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
+        logger.info("Get countries returned: " + str(subprocess.run(["nordvpn", "countries"], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", ""))
+        return str(subprocess.run(["nordvpn", "countries"], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", "")
 
     async def getCities(self, country):
         if country == None: return "NoCountrySelected"
-        logger.info("Get cities returned: " + str(self.execute(self, ["nordvpn", "cities", country])).replace("-", "").replace("\n", "").replace("    ", ""))
-        return str(self.execute(self, ["nordvpn", "cities", country])).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
+        logger.info("Get cities returned: " + str(subprocess.run(["nordvpn", "cities", country], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", ""))
+        return str(subprocess.run(["nordvpn", "cities", country], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", "")
 
     async def isConnected(self):
-        logger.info("Is connected: " + (not str(self.execute(self, ["nordvpn", "status"])).__contains__("Disconnected")))
-        return not str(self.execute(self, ["nordvpn", "status"])).__contains__("Disconnected")
+        logger.info("Is connected: " + (not str(subprocess.run(["nordvpn", "status"], capture_output=True, text=True).stdout).__contains__("Disconnected")))
+        return not str(subprocess.run(["nordvpn", "status"], capture_output=True, text=True).stdout).__contains__("Disconnected")
         
     async def disconnect(self):
-            str(self.execute(self, ["nordvpn", "disconnect"]))
+        logger.info("Disconnecting")
+        str(subprocess.run(["nordvpn", "disconnect"], capture_output=True, text=True).stdout)
 
     async def autoConnect(self):
-        str(self.execute(self, ["nordvpn", "connect"]))
+        logger.info("Autoconnecting")
+        str(subprocess.run(["nordvpn", "connect"], capture_output=True, text=True).stdout)
 
     async def connect(self, country, city):
-        str(self.execute(self, ["nordvpn", "connect", country, city]))
+        logger.info("Connecting to server in: " + country + " " + city)
+        str(subprocess.run(["nordvpn", "connect", country, city], capture_output=True, text=True).stdout)
 
     async def set(self, name, value):            
         if(value):
             value = "enabled"
         else:
             value = "disabled"
-        str(self.execute(self, ["nordvpn", "set", name, value]))
+        logger.info("Setting: " + name + " to " + value)
+        str(subprocess.run(["nordvpn", "set", name, value], capture_output=True, text=True).stdout)
 
     async def getSettingsRaw(self):
-        return "Technology:" + str(self.execute(self, ["nordvpn", "settings"])).split("Technology:")[1]
+        return "Technology:" + str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("Technology:")[1]
 
     async def parseSettings(self):
         self.settings = []
@@ -134,30 +132,39 @@ class Plugin:
         self.set("lan-discovery", state)
 
     async def resetDefaults(self):
-        str(self.execute(self, ["nordvpn", "set", "defaults"]))
+        logger.info("Resetting to defaults")
+        str(subprocess.run(["nordvpn", "set", "defaults"], capture_output=True, text=True).stdout)
 
     async def isLoggedIn(self):
-        return not str(self.execute(self, ["nordvpn", "account"])).__contains__("You are not logged in.")
+        logger.info("Is logged in: " + (not str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).__contains__("You are not logged in.")))
+        return not str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).__contains__("You are not logged in.")
 
     async def login(self):
-        ret = str(self.execute(self, ["nordvpn", "login"])).replace("Continue in the browser: ", "")
+        ret = str(subprocess.run(["nordvpn", "login"], capture_output=True, text=True).stdout).replace("Continue in the browser: ", "")
         if ret.__contains__("You are already"):
+            logger.info("Tried to login! But already logged in")
             return "AlreadyLoggedIn"
         else:
+            logger.info("Returning url for logging in: " + re.search(r"(?P<url>https?://[^\s]*)", ret).group())
             return re.search(r"(?P<url>https?://[^\s]*)", ret).group()
 
     async def logout(self):
         try:
-            str(self.execute(self, ["nordvpn", "logout"]))
+            str(subprocess.run(["nordvpn", "logout"], capture_output=True, text=True).stdout)
+            logger.info("Logging out succeeded")
             return True
         except subprocess.CalledProcessError:
+            logger.info("Logging out failed")
             return False
 
     async def getEmail(self):
-        return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", str(self.execute(self, ["nordvpn", "account"]))).group()
+        logger.info("Returning email: " + re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout)).group())
+        return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout)).group()
 
     async def isSubscriptionActive(self):
-        return str(self.execute(self, ["nordvpn", "account"])).__contains__("VPN Service: Active")
+        logger.info("Is subscription active: " + str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).__contains__("VPN Service: Active"))
+        return str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).__contains__("VPN Service: Active")
 
     async def getSubscriptionExpireDate(self):
-        return str(self.execute(self, ["nordvpn", "account"])).split("Expires on ")[1].replace(")", "")    
+        logger.info("Returned expire info: " + str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", ""))
+        return str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", "")    
