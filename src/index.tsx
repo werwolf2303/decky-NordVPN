@@ -10,8 +10,12 @@ import {
   ServerAPI,
   showContextMenu,
   staticClasses,
+  TextField,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { 
+  VFC,
+  useEffect
+} from "react";
 import { FaShip } from "react-icons/fa";
 
 import logo from "../assets/logo.png";
@@ -37,37 +41,38 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
   //   }
   // };
 
+  const loadNordVPN = async () => {
+    try {
+      const checkInstalled = await serverAPI.callPluginMethod("isInstalled", {})
+      if(checkInstalled.result) {
+
+      }
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
+  const isInstalled = async () => {
+    await serverAPI.callPluginMethod("isInstalled", {})
+  }
+
+  useEffect(() => {
+    loadNordVPN();
+  }, [])
+
   return (
-    <PanelSection title="Panel Section">
+    <PanelSection title="Test">
       <PanelSectionRow>
-        <Text></Text>
+        <TextField>NordVPN installed: {isInstalled}</TextField>
       </PanelSectionRow>
     </PanelSection>
   );
 };
 
-const DeckyPluginRouterTest: VFC = () => {
-  return (
-    <div style={{ marginTop: "50px", color: "white" }}>
-      Hello World!
-      <DialogButton onClick={() => Navigation.NavigateToLibraryTab()}>
-        Go to Library
-      </DialogButton>
-    </div>
-  );
-};
-
 export default definePlugin((serverApi: ServerAPI) => {
-  serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-    exact: true,
-  });
-
   return {
-    title: <div className={staticClasses.Title}>Example Plugin</div>,
+    title: <div className={staticClasses.Title}>NordVPNdeck</div>,
     content: <Content serverAPI={serverApi} />,
     icon: <FaShip />,
-    onDismount() {
-      serverApi.routerHook.removeRoute("/decky-plugin-test");
-    },
   };
 });

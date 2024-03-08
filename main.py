@@ -2,9 +2,7 @@ import subprocess
 import re
 
 
-class NordVPN:
-    def __init__(self):
-        return
+class Plugin:
 
     def execute(self, command):
         return subprocess.run(command, capture_output=True, text=True).stdout
@@ -37,136 +35,120 @@ class NordVPN:
 
     def getSettings(self):
         return self.Settings(self)
+        
+    def disconnect(self):
+            self.execute(["nordvpn", "disconnect"])
 
-    class Connection:
-        def __init__(self, instance):
-            self.nordvpn = instance
+    def autoConnect(self):
+        self.execute(["nordvpn", "connect"])
 
-        def disconnect(self):
-            self.nordvpn.execute(["nordvpn", "disconnect"])
+    def connect(self, country, city):
+        self.execute(["nordvpn", "connect", country, city])
 
-        def autoConnect(self):
-            self.nordvpn.execute(["nordvpn", "connect"])
+    def set(self, name, value):            if(value):
+            value = "enabled"
+        else:
+            value = "disabled"
+        self.execute(["nordvpn", "set", name, value])
 
-        def connect(self, country, city):
-            self.nordvpn.execute(["nordvpn", "connect", country, city])
+    def getSettingsRaw(self):
+        return "Technology:" + self.execute(["nordvpn", "settings"]).split("Technology:")[1]
 
-    class Settings:
-        def __init__(self, instance):
-            self.nordvpn = instance
-            self.parseSettings()
+    def parseSettings(self):
+        self.settings = []
+        for line in self.getSettingsRaw().split("\n"):
+            if line.__contains__("Technology:"): continue
+            if line.__contains__("Firewall Mark:"): continue
+            if line.__contains__("Meshnet:"): continue
+            if line.__contains__("DNS:"): continue
+            if line.__eq__(""): continue
 
-        def set(self, name, value):
-            if(value):
-                value = "enabled"
+            state = line.split(": ")[1]
+            if(state.__eq__("enabled")):
+                state = True
             else:
-                value = "disabled"
-            self.nordvpn.execute(["nordvpn", "set", name, value])
+                state = False
+            self.settings.append(state)
 
-        def getSettingsRaw(self):
-            return "Technology:" + self.nordvpn.execute(["nordvpn", "settings"]).split("Technology:")[1]
+    def getFirewall(self):
+        return self.settings[0]
 
-        def parseSettings(self):
-            self.settings = []
-            for line in self.getSettingsRaw().split("\n"):
-                if line.__contains__("Technology:"): continue
-                if line.__contains__("Firewall Mark:"): continue
-                if line.__contains__("Meshnet:"): continue
-                if line.__contains__("DNS:"): continue
-                if line.__eq__(""): continue
+    def getRouting(self):
+        return self.settings[1]
+    
+    def getAnalytics(self):
+        return self.settings[2]
 
-                state = line.split(": ")[1]
-                if(state.__eq__("enabled")):
-                    state = True
-                else:
-                    state = False
-                self.settings.append(state)
+    def getKillSwitch(self):
+        return self.settings[3]
 
-        def getFirewall(self):
-            return self.settings[0]
+    def getThreatProtectionLite(self):
+        return self.settings[4]
 
-        def getRouting(self):
-            return self.settings[1]
+    def getNotify(self):
+        return self.settings[5]
 
-        def getAnalytics(self):
-            return self.settings[2]
+    def getAutoConnect(self):
+        return self.settings[6]
 
-        def getKillSwitch(self):
-            return self.settings[3]
+    def getIPv6(self):
+        return self.settings[7]
 
-        def getThreatProtectionLite(self):
-            return self.settings[4]
+    def getLanDiscovery(self):
+        return self.settings[8]
 
-        def getNotify(self):
-            return self.settings[5]
+    def setFirewall(self, state):
+        self.set("firewall", state)
 
-        def getAutoConnect(self):
-            return self.settings[6]
+    def setRouting(self, state):
+        self.set("routing", state)
 
-        def getIPv6(self):
-            return self.settings[7]
+    def setAnalytics(self, state):
+        self.set("analytics", state)
 
-        def getLanDiscovery(self):
-            return self.settings[8]
+    def killSwitch(self, state):
+        self.set("killswitch", state)
 
-        def setFirewall(self, state):
-            self.set("firewall", state)
+    def setThreatProtectionLite(self, state):
+        self.set("threatprotectionlite", state)
 
-        def setRouting(self, state):
-            self.set("routing", state)
+    def setNotify(self, state):
+        self.set("notify", state)
 
-        def setAnalytics(self, state):
-            self.set("analytics", state)
+    def setAutoConnect(self, state):
+        self.set("autoconnect", state)
 
-        def killSwitch(self, state):
-            self.set("killswitch", state)
+    def setIPv6(self, state):
+        self.set("ipv6", state)
 
-        def setThreatProtectionLite(self, state):
-            self.set("threatprotectionlite", state)
+    def setLanDiscovery(self, state):
+        self.set("lan-discovery", state)
 
-        def setNotify(self, state):
-            self.set("notify", state)
+    def resetDefaults(self):
+        self.execute(["nordvpn", "set", "defaults"])
 
-        def setAutoConnect(self, state):
-            self.set("autoconnect", state)
+    def isLoggedIn(self):
+        return not self.execute(["nordvpn", "account"]).__contains__("You are not logged in.")
 
-        def setIPv6(self, state):
-            self.set("ipv6", state)
+    def login(self):
+        ret = self.execute(["nordvpn", "login"]).replace("Continue in the browser: ", "")
+        if ret.__contains__("You are already"):
+            return "AlreadyLoggedIn"
+        else:
+            return re.search(r"(?P<url>https?://[^\s]*)", ret).group()
 
-        def setLanDiscovery(self, state):
-            self.set("lan-discovery", state)
+    def logout(self):
+        try:
+            self.execute(["nordvpn", "logout"])
+            return True
+        except subprocess.CalledProcessError:
+            return False
 
-        def resetDefaults(self):
-            self.nordvpn.execute(["nordvpn", "set", "defaults"])
+    def getEmail(self):
+        return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", self.execute(["nordvpn", "account"])).group()
 
+    def isSubscriptionActive(self):
+        return self.execute(["nordvpn", "account"]).__contains__("VPN Service: Active")
 
-
-    class Account:
-        def __init__(self, instance):
-            self.nordvpn = instance
-
-        def isLoggedIn(self):
-            return not self.nordvpn.execute(["nordvpn", "account"]).__contains__("You are not logged in.")
-
-        def login(self):
-            ret = self.nordvpn.execute(["nordvpn", "login"]).replace("Continue in the browser: ", "")
-            if ret.__contains__("You are already"):
-                return "AlreadyLoggedIn"
-            else:
-                return re.search(r"(?P<url>https?://[^\s]*)", ret).group()
-
-        def logout(self):
-            try:
-                self.nordvpn.execute(["nordvpn", "logout"])
-                return True
-            except subprocess.CalledProcessError:
-                return False
-
-        def getEmail(self):
-            return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", self.nordvpn.execute(["nordvpn", "account"])).group()
-
-        def isSubscriptionActive(self):
-            return self.nordvpn.execute(["nordvpn", "account"]).__contains__("VPN Service: Active")
-
-        def getSubscriptionExpireDate(self):
-            return self.nordvpn.execute(["nordvpn", "account"]).split("Expires on ")[1].replace(")", "")
+    def getSubscriptionExpireDate(self):
+        return self.execute(["nordvpn", "account"]).split("Expires on ")[1].replace(")", "")    
