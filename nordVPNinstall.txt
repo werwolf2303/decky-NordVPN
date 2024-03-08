@@ -1,0 +1,27 @@
+sudo steamos-devmode enable                  //Enabling devmode (Enables to install packages with pacman)
+sudo rm /etc/ld.so.conf.d/fakeroot.conf      //Removing fakeroot.conf due to failure of installing fakeroot
+sudo pacman -S fakeroot                      //Installing fakeroot that is required by makepkg
+sudo pacman -S base-devel                    //Installing binaries required for building
+git clone https://aur.archlinux.org/yay.git  //Clone the yay repository
+cd yay                                       //Change directory to cloned one
+makepkg -si                                  //Installing yay
+cd ..                                        //Change directory into upper directory
+rm -R yay                                    //Remove cloned directory
+yay -S nordvpn-bin                           //Install nordvpn binary
+sudo usermod -aG nordvpn $USER               //Add the group to user (Required for executing nordvpn binary)
+sudo reboot                                  //Reboot system to apply the user group changes
+sudo systemctl enable nordvpnd               //Autostart nordbvpn on boot
+sudo systemctl start nordvpnd                //Starting the nordvpn service
+sudo steamos-readonly enable                 //Locking the filesystem again for stability reasons
+
+
+!! The first command does a complete system upgrade         !!
+!! Please make sure that you have at least 10GBs of storage !!
+
+
+//Required dependencies
+fakeroot
+base-devel
+nordvpn-bin
+
+

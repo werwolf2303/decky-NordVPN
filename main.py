@@ -1,60 +1,69 @@
 import subprocess
 import re
+import logging
+
+logging.basicConfig(filename="/tmp/nordvpndeck.log",
+                    format="[NordVPNDeck] %(asctime)s %(levelname)s %(message)s",
+                    filemode="w+",
+                    force=True)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class Plugin:
 
-    def execute(self, command):
-        return subprocess.run(command, capture_output=True, text=True).stdout
+    async def execute(self, command):
+        out = subprocess.run(command).stdout
+        logger.info("Command '" + command + "' returned: " + out)
+        return out
 
-    def isInstalled(self):
+    async def isInstalled(self):
         try:
-            self.execute(["nordvpn"])
+            str(self.execute(self, ["nordvpn"]))
+            logger.info("Is installed: True")
             return True
         except Exception:
+            logger.info("Is installed: False")
             return False
 
-    def getVersion(self):
-        return re.search(r"\d+(\.\d+)+", self.execute(["nordvpn", "version"])).group()
+    async def getVersion(self):
+        ver = re.search(r"\d+(\.\d+)+", str(self.execute(self, ["nordvpn", "version"]))).group()
+        logger.info("Returned version: " + ver)
+        return ver
 
-    def getAccount(self):
-        return self.Account(self)
+    async def getCountries(self):
+        logger.info("Get countries returned: " + str(self.execute(self, ["nordvpn", "countries"])).replace("-", "").replace("\n", "").replace("    ", ""))
+        return str(self.execute(self, ["nordvpn", "countries"])).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
 
-    def getCountries(self):
-        return self.execute(["nordvpn", "countries"]).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
-
-    def getCities(self, country):
+    async def getCities(self, country):
         if country == None: return "NoCountrySelected"
-        return self.execute(["nordvpn", "cities", country]).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
+        logger.info("Get cities returned: " + str(self.execute(self, ["nordvpn", "cities", country])).replace("-", "").replace("\n", "").replace("    ", ""))
+        return str(self.execute(self, ["nordvpn", "cities", country])).replace("-", "").replace("\n", "").replace("    ", "").split(", ")
 
-    def isConnected(self):
-        return not self.execute(["nordvpn", "status"]).__contains__("Disconnected")
-
-    def getConnection(self):
-        return self.Connection(self)
-
-    def getSettings(self):
-        return self.Settings(self)
+    async def isConnected(self):
+        logger.info("Is connected: " + (not str(self.execute(self, ["nordvpn", "status"])).__contains__("Disconnected")))
+        return not str(self.execute(self, ["nordvpn", "status"])).__contains__("Disconnected")
         
-    def disconnect(self):
-            self.execute(["nordvpn", "disconnect"])
+    async def disconnect(self):
+            str(self.execute(self, ["nordvpn", "disconnect"]))
 
-    def autoConnect(self):
-        self.execute(["nordvpn", "connect"])
+    async def autoConnect(self):
+        str(self.execute(self, ["nordvpn", "connect"]))
 
-    def connect(self, country, city):
-        self.execute(["nordvpn", "connect", country, city])
+    async def connect(self, country, city):
+        str(self.execute(self, ["nordvpn", "connect", country, city]))
 
-    def set(self, name, value):            if(value):
+    async def set(self, name, value):            
+        if(value):
             value = "enabled"
         else:
             value = "disabled"
-        self.execute(["nordvpn", "set", name, value])
+        str(self.execute(self, ["nordvpn", "set", name, value]))
 
-    def getSettingsRaw(self):
-        return "Technology:" + self.execute(["nordvpn", "settings"]).split("Technology:")[1]
+    async def getSettingsRaw(self):
+        return "Technology:" + str(self.execute(self, ["nordvpn", "settings"])).split("Technology:")[1]
 
-    def parseSettings(self):
+    async def parseSettings(self):
         self.settings = []
         for line in self.getSettingsRaw().split("\n"):
             if line.__contains__("Technology:"): continue
@@ -70,85 +79,85 @@ class Plugin:
                 state = False
             self.settings.append(state)
 
-    def getFirewall(self):
+    async def getFirewall(self):
         return self.settings[0]
 
-    def getRouting(self):
+    async def getRouting(self):
         return self.settings[1]
     
-    def getAnalytics(self):
+    async def getAnalytics(self):
         return self.settings[2]
 
-    def getKillSwitch(self):
+    async def getKillSwitch(self):
         return self.settings[3]
 
-    def getThreatProtectionLite(self):
+    async def getThreatProtectionLite(self):
         return self.settings[4]
 
-    def getNotify(self):
+    async def getNotify(self):
         return self.settings[5]
 
-    def getAutoConnect(self):
+    async def getAutoConnect(self):
         return self.settings[6]
 
-    def getIPv6(self):
+    async def getIPv6(self):
         return self.settings[7]
 
-    def getLanDiscovery(self):
+    async def getLanDiscovery(self):
         return self.settings[8]
 
-    def setFirewall(self, state):
+    async def setFirewall(self, state):
         self.set("firewall", state)
 
-    def setRouting(self, state):
+    async def setRouting(self, state):
         self.set("routing", state)
 
-    def setAnalytics(self, state):
+    async def setAnalytics(self, state):
         self.set("analytics", state)
 
-    def killSwitch(self, state):
+    async def killSwitch(self, state):
         self.set("killswitch", state)
 
-    def setThreatProtectionLite(self, state):
+    async def setThreatProtectionLite(self, state):
         self.set("threatprotectionlite", state)
 
-    def setNotify(self, state):
+    async def setNotify(self, state):
         self.set("notify", state)
 
-    def setAutoConnect(self, state):
+    async def setAutoConnect(self, state):
         self.set("autoconnect", state)
 
-    def setIPv6(self, state):
+    async def setIPv6(self, state):
         self.set("ipv6", state)
 
-    def setLanDiscovery(self, state):
+    async def setLanDiscovery(self, state):
         self.set("lan-discovery", state)
 
-    def resetDefaults(self):
-        self.execute(["nordvpn", "set", "defaults"])
+    async def resetDefaults(self):
+        str(self.execute(self, ["nordvpn", "set", "defaults"]))
 
-    def isLoggedIn(self):
-        return not self.execute(["nordvpn", "account"]).__contains__("You are not logged in.")
+    async def isLoggedIn(self):
+        return not str(self.execute(self, ["nordvpn", "account"])).__contains__("You are not logged in.")
 
-    def login(self):
-        ret = self.execute(["nordvpn", "login"]).replace("Continue in the browser: ", "")
+    async def login(self):
+        ret = str(self.execute(self, ["nordvpn", "login"])).replace("Continue in the browser: ", "")
         if ret.__contains__("You are already"):
             return "AlreadyLoggedIn"
         else:
             return re.search(r"(?P<url>https?://[^\s]*)", ret).group()
 
-    def logout(self):
+    async def logout(self):
         try:
-            self.execute(["nordvpn", "logout"])
+            str(self.execute(self, ["nordvpn", "logout"]))
             return True
         except subprocess.CalledProcessError:
             return False
 
-    def getEmail(self):
-        return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", self.execute(["nordvpn", "account"])).group()
+    async def getEmail(self):
+        return re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", str(self.execute(self, ["nordvpn", "account"]))).group()
 
-    def isSubscriptionActive(self):
-        return self.execute(["nordvpn", "account"]).__contains__("VPN Service: Active")
+    async def isSubscriptionActive(self):
+        return str(self.execute(self, ["nordvpn", "account"])).__contains__("VPN Service: Active")
 
-    def getSubscriptionExpireDate(self):
-        return self.execute(["nordvpn", "account"]).split("Expires on ")[1].replace(")", "")    
+    async def getSubscriptionExpireDate(self):
+        return str(self.execute(self, ["nordvpn", "account"])).split("Expires on ")[1].replace(")", "")    

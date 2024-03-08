@@ -1,4 +1,5 @@
 import {
+  Button,
   ButtonItem,
   definePlugin,
   DialogButton,
@@ -10,11 +11,14 @@ import {
   ServerAPI,
   showContextMenu,
   staticClasses,
-  TextField,
+  Field,
+  ToggleField,
+  Panel
 } from "decky-frontend-lib";
 import { 
   VFC,
-  useEffect
+  useEffect,
+  useState
 } from "react";
 import { FaShip } from "react-icons/fa";
 
@@ -40,32 +44,40 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
   //     setResult(result.result);
   //   }
   // };
+  const [ installed, setInstalled ] = useState(false);
+  const [ countries, setCountries ] = useState(Array<String>);
+
+  const [ loaded, setLoaded ] = useState(false)
 
   const loadNordVPN = async () => {
     try {
       const checkInstalled = await serverAPI.callPluginMethod("isInstalled", {})
-      if(checkInstalled.result) {
-
-      }
+      setInstalled(Boolean(checkInstalled.result))
+      const countriesResult = await serverAPI.callPluginMethod("getCountries", {})
+      setCountries(countriesResult.result as Array<String>) 
+      console.log("RAW Result of countries: " + countriesResult.result)
     } catch(error) {
-      console.error(error)
+      console.info(error)
     }
-  }
-
-  const isInstalled = async () => {
-    await serverAPI.callPluginMethod("isInstalled", {})
+    setLoaded(true)
   }
 
   useEffect(() => {
-    loadNordVPN();
-  }, [])
+    loadNordVPN()
+  }, []);
 
   return (
-    <PanelSection title="Test">
-      <PanelSectionRow>
-        <TextField>NordVPN installed: {isInstalled}</TextField>
-      </PanelSectionRow>
+    <>
+    {/*{loaded && <PanelSection title="Countries">
+      {countries.length > 0 && countries.map((country) => [
+        <p>{country}</p>
+      ])}
     </PanelSection>
+    && <PanelSection>
+      <p>Is NordVPN installed: {String(installed)}</p>
+    </PanelSection>
+    } */}
+    </>
   );
 };
 
