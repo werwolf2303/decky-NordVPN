@@ -1,147 +1,94 @@
 import {
-  Button,
-  ButtonItem,
   definePlugin,
-  DialogButton,
-  Menu,
-  MenuItem,
-  Navigation,
   PanelSection,
   PanelSectionRow,
   ServerAPI,
-  showContextMenu,
-  staticClasses,
-  Field,
-  ToggleField,
-  Panel,
-  showModal,
-  SimpleModal,
-  ConfirmModal
+  quickAccessMenuClasses
 } from "decky-frontend-lib";
 import { 
   VFC,
-  useEffect,
-  useState,
+  useState
 } from "react";
-import { FaShip } from "react-icons/fa";
+import { Backend } from "./backend";
+import { GenIcon, IconBaseProps } from "react-icons";
+import { CountryList } from "./components/countryList";
 
-import logo from "../assets/logo.png";
+function NordVPNfa(props: IconBaseProps) {
+  // @ts-ignore
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 48 48"},"child":[{"tag":"path","attr":{"d":"m6.59 36.89a21.71 21.71 0 0 1 17.41-34.39 21.71 21.71 0 0 1 17.41 34.39l-10.33-16.89-1.86 3.17 1.88 3.23-7.1-12.23-5.27 9 1.9 3.27-3.72-6.44z"}}]})(props); 
+}
 
-// interface AddMethodArgs {
-//   left: number;
-//   right: number;
-// }
+const Content: VFC<{ backend: Backend }> = ({backend}) => {
 
-const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
-  // const [result, setResult] = useState<number | undefined>();
-
-  // const onClick = async () => {
-  //   const result = await serverAPI.callPluginMethod<AddMethodArgs, number>(
-  //     "add",
-  //     {
-  //       left: 2,
-  //       right: 2,
-  //     }
-  //   );
-  //   if (result.success) {
-  //     setResult(result.result);
-  //   }
-  // };
-  const [ installed, setInstalled ] = useState(false);
-  const [ countries, setCountries ] = useState(String);
   const [ loaded, setLoaded ] = useState(false);
-  const [ loggedIn, setLoggedIn] = useState(false);
+  const [ installed, setInstalled ] = useState(false);
+  const [ countries, setCountries ] = useState("");
+  const [ loggedIn, setLoggedIn ] = useState(false);
+  const [ errorSwitch, setErrorSwitch ] = useState(false);
 
   const loadNordVPN = async () => {
+
     try {
-      const checkInstalled = await serverAPI.callPluginMethod("isInstalled", {});
-      setInstalled(Boolean(checkInstalled.result));
-      const countriesResult = await serverAPI.callPluginMethod("getCountries", {});
-      setCountries(countriesResult.result.toString());
-      const loggedInResult = await serverAPI.callPluginMethod("isLoggedIn", {});
-      setLoggedIn(Boolean(loggedInResult.result))
-      console.log("Penis: " + loggedIn)
+      const isInstalledResponse = backend.isInstalled();
+      setInstalled(await isInstalledResponse);
     } catch(error) {
-      console.info(error);
+      setErrorSwitch(true);
     }
+
+    try {
+      const getCountriesResponse = backend.getCountries();
+      setCountries(await getCountriesResponse);
+    } catch (error) {
+      setErrorSwitch(true);
+    }
+
+    try {
+      const isLoggedInResponse = backend.isLoggedIn();
+      setLoggedIn(await isLoggedInResponse);
+    } catch (error) {
+      setErrorSwitch(true);
+    }
+
     setLoaded(true);
   }
 
-  useEffect(() => {
-    loadNordVPN()
-  }, []);
-
-  function displayCities(countryName: any, e: MouseEvent) {
-    serverAPI.callPluginMethod("getCities", countryName).then((response) => {
-      var cities = response.result.toString().split(", ");
-      showContextMenu(
-       <Menu 
-       label={"Available cities in " + countryName.toString()}
-       cancelText="Close"
-       onCancel={() => {displayCountries(e)}}
-       >
-        {cities.map(city => (
-          <MenuItem onClick={() => {
-            console.log("Is logged in: " + loggedIn)
-            if(loggedIn) {
-              connect(countryName, city);
-            }else{
-              showDialog("Can't connect you right now", "Please login before trying to connect");
-            }
-          }}>{city.split("_").join(" ")}</MenuItem>
-        ))}
-       </Menu>
-      )
-    })
-  }
-
-  async function displayCountries(e: MouseEvent) {
-    showContextMenu(
-      <Menu
-      label="Available countries"
-      cancelText="Close"
-      onCancel={() => {}}
-      >
-        {countries.split(", ").map(country => (
-          <MenuItem onClick={() => {displayCities({country}, e)}}>{country.split("_").join(" ")}</MenuItem>
-        ))}
-      </Menu>,
-      e.currentTarget ?? window
-    )
-  }
-
-  async function connect(countryName: string, cityName: string) {
-    serverAPI.callPluginMethod("connect", [countryName, cityName])
-  }
-
-  function showDialog(title: string, message: string, okText: string = "Cancel", cancelText: string = "Ok") {
-    showModal(
-      <ConfirmModal
-      strTitle={title}
-      strDescription={message}
-      strCancelButtonText={cancelText}
-      strOKButtonText={okText}
-      />
-    )
-  }
-
-  if(!installed && loaded) {
-    return (<PanelSection title="Error"><PanelSectionRow><p>!!!NordVPN binary is not installed!!!</p></PanelSectionRow></PanelSection>);
-  }
-
-  if(loaded 
-    && installed 
-    && countries.length > 0) {
+  loadNordVPN();
+  
+  if(errorSwitch) {
     return (
-    <><PanelSection title="Countries">
-        <ButtonItem
-          onClick={(e) => {
-            displayCountries(e);
-          }}
-        >Available countries</ButtonItem>
-      </PanelSection><PanelSection title="Test">
-        <p>Is logged in: {loggedIn}</p>
-      </PanelSection>
+    <>
+    <p>!An error occurred!</p>
+    <p>Please try again later.</p>
+    <p>When the issue persists please contact the developer</p>
+    </>)
+  }
+
+  if(loaded && !installed) {
+    return (
+    <PanelSection title="Error">
+      <PanelSectionRow>
+      <p>!!!NordVPN binary is not installed!!!</p>
+      <p>Please follow the instructions inside the txt file on the GitHub repository of NordVPNdeck</p>
+      </PanelSectionRow>
+      </PanelSection>);
+  }
+
+  if(loaded && !loggedIn) {
+    return (<>
+    <PanelSection title="Please log in">
+      <PanelSectionRow>
+      <p>Please open the console application inside Desktop Mode</p>
+      <p>Type the following: 'nordvpn login'</p>
+      <p>Open the url in a browser and follow the instructions</p>
+      </PanelSectionRow>
+    </PanelSection>
+    </>);
+  }
+
+  if(loaded && installed && loggedIn) {
+    return (
+    <>
+    <CountryList backend={backend} countries={countries} /> {/* A list containing all available countries */}
     </>);
   }
 
@@ -150,14 +97,18 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({serverAPI}) => {
   }
 
   return (
-    <><p>Unknown error</p></>
+    <>
+    <p>Unknown error</p>
+    </>
   );
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
+  var backend = new Backend(serverApi);
+  backend.refreshCache();
   return {
-    title: <div className={staticClasses.Title}>NordVPNdeck</div>,
-    content: <Content serverAPI={serverApi} />,
-    icon: <FaShip />,
+    title: <div className={quickAccessMenuClasses.Title}>NordVPNdeck</div>,
+    content: <Content backend={backend} />,
+    icon: <NordVPNfa/>
   };
 });
