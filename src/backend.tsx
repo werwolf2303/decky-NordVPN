@@ -1,13 +1,40 @@
 import { ServerAPI } from "decky-frontend-lib";
+import { Language } from "./language/language";
+
+
+export type Connection = {
+    Status: string,
+    Hostname: string,
+    IP: string,
+    Country: string,
+    City: string,
+    CurrentTechnology: string,
+    CurrentProtocol: string,
+    Transfer: string,
+    Uptime: string
+}
 
 export class Backend {
     private serverAPI: ServerAPI;
     private cachedInstalled = false;
     private cachedLoggedIn = false;
     private cachedCountries = "";
+    private language: Language;
+    private connectionRefreshMethod: Function = function(connection: Connection) {
+        connection;
+    };
 
     constructor(serverAPI: ServerAPI) {
         this.serverAPI = serverAPI;
+        this.language = new Language();
+    }
+    
+    getLanguage(): Language {
+        return this.language;
+    }
+
+    async setConnectionInfoRefresh(connectionRefreshMethod: Function) {
+        this.connectionRefreshMethod = connectionRefreshMethod;
     }
 
     async execute(command: string, args: {} = {}) {
@@ -30,8 +57,12 @@ export class Backend {
         return (await this.serverAPI.callPluginMethod("getCities", countryName)).result as string;
     }
 
-    async connect(countryName: string, cityName: string) {
-        return await this.serverAPI.callPluginMethod("connect", [countryName, cityName]);
+    connect(countryName: string, cityName: string) {
+        this.serverAPI.callPluginMethod("connect", [countryName, cityName]).then((response) => {
+            this.getConnection().then((response) => {
+                this.connectionRefreshMethod(response);
+            });
+        });
     }
 
     async getVersion(): Promise<string> {
@@ -144,6 +175,10 @@ export class Backend {
 
     async login(): Promise<string> {
         return (await this.serverAPI.callPluginMethod("login", {})).result as string;
+    }
+
+    async getConnection(): Promise<Connection> {
+        return (await this.serverAPI.callPluginMethod("getConnection", {})).result as Connection;
     }
 
     async refreshCache() {

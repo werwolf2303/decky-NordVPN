@@ -2,6 +2,7 @@ import subprocess
 import re
 import decky_plugin
 import logging
+import json
 
 
 logging.basicConfig(filename=decky_plugin.DECKY_PLUGIN_LOG_DIR + "/python.log",
@@ -32,7 +33,6 @@ class Plugin:
         return str(subprocess.run(["nordvpn", "countries"], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", "")
 
     async def getCities(self, country):
-        if country == None: return "NoCountrySelected"
         logger.info("Get cities returned: " + str(subprocess.run(["nordvpn", "cities", country], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", ""))
         return str(subprocess.run(["nordvpn", "cities", country], capture_output=True, text=True).stdout).replace("-", "").replace("\n", "").replace("    ", "")
 
@@ -50,7 +50,7 @@ class Plugin:
 
     async def connect(self, array):
         logger.info("Connecting to server in: " + array[0] + " " + array[1])
-        str(subprocess.run(["nordvpn", "connect", array[0], array[1]], capture_output=True, text=True).stdout)
+        subprocess.run(["nordvpn", "connect", array[0], array[1]], capture_output=True, text=True)
 
     async def set(self, name, value):         
         self.settings = []  
@@ -181,4 +181,32 @@ class Plugin:
 
     async def getSubscriptionExpireDate(self):
         logger.info("Returned expire info: " + str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", ""))
-        return str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", "")    
+        return str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", "")  
+
+    async def getConnection(self):
+        output = str(subprocess.run(["nordvpn", "status"], capture_output=True, text=True).stdout).split("Status")[1]
+        if(output.__contains__("Disconnected")):
+            return {
+                "Status": "Disconnected",
+                "Hostname": "N/A",
+                "IP": "N/A",
+                "Country": "N/A",
+                "City": "N/A",
+                "CurrentTechnology": "N/A",
+                "CurrentProtocol": "N/A",
+                "Transfer": "N/A",
+                "Uptime": "N/A"
+            }
+        else:
+            output = ("Status" + output).split("\n")
+            return {
+                "Status": output[0].split(": ")[1],
+                "Hostname": output[1].split(": ")[1],
+                "IP": output[2].split(": ")[1],
+                "Country": output[3].split(": ")[1],
+                "City": output[4].split(": ")[1],
+                "CurrentTechnology": output[5].split(": ")[1],
+                "CurrentProtocol": output[6].split(": ")[1],
+                "Transfer": output[7].split(": ")[1],
+                "Uptime": output[8].split(": ")[1]
+            }  

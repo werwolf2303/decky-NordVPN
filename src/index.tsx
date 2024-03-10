@@ -12,6 +12,7 @@ import {
 import { Backend } from "./backend";
 import { GenIcon, IconBaseProps } from "react-icons";
 import { CountryList } from "./components/countryList";
+import { ConnectionInfo } from "./components/connectionInfo";
 
 function NordVPNfa(props: IconBaseProps) {
   // @ts-ignore
@@ -57,29 +58,29 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
   if(errorSwitch) {
     return (
     <>
-    <p>!An error occurred!</p>
-    <p>Please try again later.</p>
-    <p>When the issue persists please contact the developer</p>
+    <p>{backend.getLanguage().translate("ui.error.switch1")}</p>
+    <p>{backend.getLanguage().translate("ui.error.switch2")}</p>
+    <p>{backend.getLanguage().translate("ui.error.switch3")}</p>
     </>)
   }
 
   if(loaded && !installed) {
     return (
-    <PanelSection title="Error">
+    <PanelSection title={backend.getLanguage().translate("general.error")}>
       <PanelSectionRow>
-      <p>!!!NordVPN binary is not installed!!!</p>
-      <p>Please follow the instructions inside the txt file on the GitHub repository of NordVPNdeck</p>
+      <p>{backend.getLanguage().translate("ui.error.binary1")}</p>
+      <p>{backend.getLanguage().translate("ui.error.binary2")}</p>
       </PanelSectionRow>
       </PanelSection>);
   }
 
   if(loaded && !loggedIn) {
     return (<>
-    <PanelSection title="Please log in">
+    <PanelSection title={backend.getLanguage().translate("ui.login.title")}>
       <PanelSectionRow>
-      <p>Please open the console application inside Desktop Mode</p>
-      <p>Type the following: 'nordvpn login'</p>
-      <p>Open the url in a browser and follow the instructions</p>
+      <p>{backend.getLanguage().translate("ui.login.txt1")}</p>
+      <p>{backend.getLanguage().translate("ui.login.txt2")}</p>
+      <p>{backend.getLanguage().translate("ui.login.txt3")}</p>
       </PanelSectionRow>
     </PanelSection>
     </>);
@@ -88,17 +89,18 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
   if(loaded && installed && loggedIn) {
     return (
     <>
+    <ConnectionInfo backend={backend} /> {/* Contains elements to report the vpn connection info */}
     <CountryList backend={backend} countries={countries} /> {/* A list containing all available countries */}
     </>);
   }
 
   if(!loaded) {
-    return (<p>Please wait...</p>);
+    return (<p>{backend.getLanguage().translate("general.wait")}</p>);
   }
 
   return (
     <>
-    <p>Unknown error</p>
+    <p>{backend.getLanguage().translate("general.error.unknown")}</p>
     </>
   );
 };
