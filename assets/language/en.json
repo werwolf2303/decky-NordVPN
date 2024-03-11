@@ -28,5 +28,21 @@
     "ui.connection.disconnect": "Disconnect",
     "ui.settings.title": "Settings",
     "ui.settings.firewall.title": "Enable Firewall",
-    "ui.settings.firewall.description": "Prevents harmful or unauthorized users from accessing or exploiting your vpn connection"
+    "ui.settings.firewall.description": "Prevents harmful or unauthorized users from accessing or exploiting your vpn connection",
+    "ui.settings.routing.title": "Enable Routing",
+    "ui.settings.routing.description": "Allow to route internet through compatible devices on your Meshnet",
+    "ui.settings.analytics.title": "Enable Analytics",
+    "ui.settings.analytics.description": "Allow to send anonymous data to improve NordVPN",
+    "ui.settings.killswitch.title": "Enable KillSwitch",
+    "ui.settings.killswitch.description": "Block internet access when the vpn isn't connected",
+    "ui.settings.threatprotection.title": "Enable Threat Protection",
+    "ui.settings.threatprotection.description": "Block suspicious websites",
+    "ui.settings.notify.title": "Enable Notify",
+    "ui.settings.notify.description": "Allow notifications",
+    "ui.settings.autoconnect.title": "Enable AutoConnect",
+    "ui.settings.autoconnect.description": "Connect to vpn at startup",
+    "ui.settings.ipv6.title": "Enable IPv6",
+    "ui.settings.ipv6.description": "Allow NordVPN to use IPv6",
+    "ui.settings.landiscovery.title": "Enable LanDiscovery",
+    "ui.settings.landiscovery.description": "Allow devices on local network to be accessed while connected to vpn"
 }
