@@ -48,9 +48,9 @@ class Plugin:
         logger.info("Autoconnecting")
         str(subprocess.run(["nordvpn", "connect"], capture_output=True, text=True).stdout)
 
-    async def connect(self, array):
-        logger.info("Connecting to server in: " + array[0] + " " + array[1])
-        subprocess.run(["nordvpn", "connect", array[0], array[1]], capture_output=True, text=True)
+    async def connect(self, countryName, cityName):
+        logger.info("Connecting to server in: " + countryName + " " + cityName)
+        subprocess.run(["nordvpn", "connect", countryName, cityName], capture_output=True, text=True)
 
     async def set(self, name, value):         
         self.settings = []  

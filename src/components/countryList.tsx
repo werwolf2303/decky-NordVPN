@@ -1,7 +1,6 @@
 import { ReactElement } from "react";
 import { Backend } from "../backend";
 import { 
-    PanelSection,
     ButtonItem,
     showContextMenu,
     Menu,
@@ -14,8 +13,8 @@ export function CountryList({backend, countries}: {backend: Backend, countries: 
           var cities = response.split(", ");
           showContextMenu(
            <Menu 
-           label={"Available cities"}
-           cancelText="Close"
+           label={backend.getLanguage().translate("ui.countrylist.availablecities")}
+           cancelText={backend.getLanguage().translate("ui.countrylist.close")}
            onCancel={() => {displayCountries(e)}}
            >
             {cities.map(city => (
@@ -31,8 +30,8 @@ export function CountryList({backend, countries}: {backend: Backend, countries: 
     async function displayCountries(e: MouseEvent) {
       showContextMenu(
         <Menu
-        label="Available countries"
-        cancelText="Close"
+        label={backend.getLanguage().translate("ui.countrylist.availablecountries")}
+        cancelText={backend.getLanguage().translate("ui.countrylist.cityclose")}
         onCancel={() => {}}
         >
           {countries.split(", ").map(country => (
@@ -44,13 +43,11 @@ export function CountryList({backend, countries}: {backend: Backend, countries: 
     }
 
     return (
-        <PanelSection title="Countries">
-        <ButtonItem
-          layout="below"
-          onClick={(e) => {
-            displayCountries(e);
-          }}
-        >Available countries</ButtonItem>
-      </PanelSection>
+      <ButtonItem
+        layout="below"
+        onClick={(e) => {
+          displayCountries(e);
+        }}
+      >Available countries</ButtonItem>
     );
 }

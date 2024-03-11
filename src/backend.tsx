@@ -23,6 +23,8 @@ export class Backend {
     private connectionRefreshMethod: Function = function(connection: Connection) {
         connection;
     };
+    private errorSwitchMethod: Function = function() {
+    }
 
     constructor(serverAPI: ServerAPI) {
         this.serverAPI = serverAPI;
@@ -35,6 +37,14 @@ export class Backend {
 
     async setConnectionInfoRefresh(connectionRefreshMethod: Function) {
         this.connectionRefreshMethod = connectionRefreshMethod;
+    }
+
+    async setErrorSwitchMethod(errorSwitchMethod: Function) {
+        this.errorSwitchMethod = errorSwitchMethod;
+    }
+
+    async triggerErrorSwitch() {
+        this.errorSwitchMethod();
     }
 
     async execute(command: string, args: {} = {}) {
@@ -58,7 +68,7 @@ export class Backend {
     }
 
     connect(countryName: string, cityName: string) {
-        this.serverAPI.callPluginMethod("connect", [countryName, cityName]).then((response) => {
+        this.serverAPI.callPluginMethod("connect", {"countryName" : countryName, "cityName" : cityName}).then(() => {
             this.getConnection().then((response) => {
                 this.connectionRefreshMethod(response);
             });

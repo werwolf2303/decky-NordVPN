@@ -1,5 +1,5 @@
 {
-    "ui.error.switch1": "!An error occurred!",
+    "ui.error.switch1": "!An e+/rror occurred!",
     "ui.error.switch2": "Please try again later.",
     "ui.error.switch3": "When the error persists please contact the developer",
     "general.error": "Error",
@@ -12,13 +12,21 @@
     "ui.login.txt1": "Please open the console application inside Desktop Mode",
     "ui.login.txt2": "Type the following: 'nordvpn login'",
     "ui.login.txt3": "Open the url in a browser and the follow the instructions",
+    "ui.connection.title": "VPN connection control",
     "ui.connectioninfo.title": "Connection info",
     "ui.connectioninfo.status": "Status",
     "ui.connectioninfo.ip": "IP",
     "ui.connectioninfo.country": "Country",
     "ui.connectioninfo.city": "City",
+    "ui.countrylist.close": "Close",
     "ui.countrylist.availablecountries": "Available countries",
     "ui.countrylist.availablecities": "Available cities",
+    "ui.countrylist.cityclose": "Close",
     "ui.countrylist.title": "Countries",
-    "ui.countrylist.button": "Available countries"
+    "ui.countrylist.button": "Available countries",
+    "ui.connection.autoconnect": "Connect to recommended",
+    "ui.connection.disconnect": "Disconnect",
+    "ui.settings.title": "Settings",
+    "ui.settings.firewall.title": "Enable Firewall",
+    "ui.settings.firewall.description": "Prevents harmful or unauthorized users from accessing or exploiting your vpn connection"
 }

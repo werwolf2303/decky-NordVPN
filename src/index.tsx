@@ -3,7 +3,8 @@ import {
   PanelSection,
   PanelSectionRow,
   ServerAPI,
-  quickAccessMenuClasses
+  quickAccessMenuClasses,
+  Button
 } from "decky-frontend-lib";
 import { 
   VFC,
@@ -11,8 +12,9 @@ import {
 } from "react";
 import { Backend } from "./backend";
 import { GenIcon, IconBaseProps } from "react-icons";
-import { CountryList } from "./components/countryList";
 import { ConnectionInfo } from "./components/connectionInfo";
+import { Connect } from "./components/connect";
+import { Settings } from "./components/settings";
 
 function NordVPNfa(props: IconBaseProps) {
   // @ts-ignore
@@ -23,7 +25,6 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
 
   const [ loaded, setLoaded ] = useState(false);
   const [ installed, setInstalled ] = useState(false);
-  const [ countries, setCountries ] = useState("");
   const [ loggedIn, setLoggedIn ] = useState(false);
   const [ errorSwitch, setErrorSwitch ] = useState(false);
 
@@ -37,13 +38,6 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
     }
 
     try {
-      const getCountriesResponse = backend.getCountries();
-      setCountries(await getCountriesResponse);
-    } catch (error) {
-      setErrorSwitch(true);
-    }
-
-    try {
       const isLoggedInResponse = backend.isLoggedIn();
       setLoggedIn(await isLoggedInResponse);
     } catch (error) {
@@ -52,6 +46,12 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
 
     setLoaded(true);
   }
+
+  function triggerErrorSwitch() {
+    setErrorSwitch(true);
+  }
+
+  backend.setErrorSwitchMethod(triggerErrorSwitch);
 
   loadNordVPN();
   
@@ -89,8 +89,9 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
   if(loaded && installed && loggedIn) {
     return (
     <>
-    <ConnectionInfo backend={backend} /> {/* Contains elements to report the vpn connection info */}
-    <CountryList backend={backend} countries={countries} /> {/* A list containing all available countries */}
+    <ConnectionInfo backend={backend} /> 
+    <Connect backend={backend} />
+    <Settings backend={backend} /> 
     </>);
   }
 

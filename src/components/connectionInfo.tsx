@@ -37,15 +37,28 @@ export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
     return (
         <PanelSection title={backend.getLanguage().translate("ui.connectioninfo.title")}>
             <PanelSectionRow>
-                <div>{backend.getLanguage().translate("ui.connectioninfo.status")}: {connection?.Status}</div>
-                {!connection?.Status.includes("Disconnected") && 
-                <>
-                <div>{backend.getLanguage().translate("ui.connectioninfo.ip")}: {connection?.IP}</div>
-                <div>{backend.getLanguage().translate("ui.connectioninfo.country")}: {connection?.Country}</div>
-                <div>{backend.getLanguage().translate("ui.connectioninfo.city")}: {connection?.City}</div>
-                </>
-                }
+                <Field
+                label={backend.getLanguage().translate("ui.connectioninfo.status")}
+                >{connection?.Status}</Field>    
             </PanelSectionRow>
+            {!connection?.Status.includes("Disconnected") && 
+                <>
+                <PanelSectionRow>
+                <Field
+                label={backend.getLanguage().translate("ui.connectioninfo.country")}
+                >{connection?.Country}</Field>
+                </PanelSectionRow>
+                <PanelSectionRow>
+                <Field
+                label={backend.getLanguage().translate("ui.connectioninfo.city")}
+                >{connection?.City}</Field>
+                </PanelSectionRow>
+                <PanelSectionRow>
+                <Field
+                label={backend.getLanguage().translate("ui.connectioninfo.ip")}
+                >{connection?.IP}</Field>
+                </PanelSectionRow>
+                </>}
         </PanelSection>
     );
 }
