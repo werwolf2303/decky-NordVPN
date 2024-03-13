@@ -2,7 +2,7 @@ import subprocess
 import re
 import decky_plugin
 import logging
-import json
+from settings import SettingsManager
 
 
 logging.basicConfig(filename=decky_plugin.DECKY_PLUGIN_LOG_DIR + "/python.log",
@@ -11,6 +11,18 @@ logging.basicConfig(filename=decky_plugin.DECKY_PLUGIN_LOG_DIR + "/python.log",
                     force=True)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+class SettingsManagerExtended(SettingsManager):
+    def __init__(self, name: str, settings_directory: str | None = None) -> None:
+        super().__init__(name, settings_directory)
+
+    def settingExists(self, key: str) -> bool:
+        return key in self.settings
+
+
+settings = SettingsManagerExtended(name="settings",settings_directory=decky_plugin.DECKY_PLUGIN_SETTINGS_DIR)
+settings.read()
+
 
 class Plugin:
     async def isInstalled(self):
@@ -167,12 +179,12 @@ class Plugin:
     async def getSubscriptionExpireDate(self):
         logger.info("Returned expire info: " + str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", ""))
         return str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).split("Expires on ")[1].replace(")", "")  
-
+    
     async def getConnection(self):
         output = str(subprocess.run(["nordvpn", "status"], capture_output=True, text=True).stdout).split("Status")[1]
         if(output.__contains__("Disconnected")):
             return {
-                "Status": "Disconnected",
+                "Status": "",
                 "Hostname": "N/A",
                 "IP": "N/A",
                 "Country": "N/A",
@@ -194,4 +206,19 @@ class Plugin:
                 "CurrentProtocol": output[6].split(": ")[1],
                 "Transfer": output[7].split(": ")[1],
                 "Uptime": output[8].split(": ")[1]
-            }  
+            }
+          
+    async def settings_read(self):
+        return settings.read()
+    
+    async def settings_commit(self):
+        return settings.commit()
+
+    async def settings_getSetting(self, key: str, defaults):
+        return settings.getSetting(key, defaults)
+    
+    async def settings_setSetting(self, key: str, value):
+        return settings.setSetting(key, value)
+    
+    async def settings_settingExists(self, key: str):
+        return settings.settingExists(key)

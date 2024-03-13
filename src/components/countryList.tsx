@@ -48,6 +48,6 @@ export function CountryList({backend, countries}: {backend: Backend, countries: 
         onClick={(e) => {
           displayCountries(e);
         }}
-      >Available countries</ButtonItem>
+      >{backend.getLanguage().translate("ui.countrylist.button")}</ButtonItem>
     );
 }

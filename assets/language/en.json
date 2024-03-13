@@ -1,7 +1,8 @@
 {
-    "ui.error.switch1": "!An e+/rror occurred!",
+    "ui.error.switch1": "!An error occurred!",
     "ui.error.switch2": "Please try again later.",
     "ui.error.switch3": "When the error persists please contact the developer",
+    "ui.error.switch4": "ErrTxt: ",
     "general.error": "Error",
     "general.loading": "Loading...",
     "general.wait": "Please wait...",
@@ -18,11 +19,13 @@
     "ui.connectioninfo.ip": "IP",
     "ui.connectioninfo.country": "Country",
     "ui.connectioninfo.city": "City",
+    "ui.connectioninfo.disconnected": "Disconnected",
+    "ui.connectionfnfo.connected": "Conntected",
     "ui.countrylist.close": "Close",
     "ui.countrylist.availablecountries": "Available countries",
     "ui.countrylist.availablecities": "Available cities",
     "ui.countrylist.cityclose": "Close",
-    "ui.countrylist.title": "Countries",
+    "ui.countr ylist.title": "Countries",
     "ui.countrylist.button": "Available countries",
     "ui.connection.autoconnect": "Connect to recommended",
     "ui.connection.disconnect": "Disconnect",
@@ -46,5 +49,7 @@
     "ui.settings.landiscovery.title": "Enable LanDiscovery",
     "ui.settings.landiscovery.description": "Allow devices on local network to be accessed while connected to vpn",
     "ui.settings.language.title": "Language",
-    "ui.settings.language.description": "Set language to use"
+    "ui.settings.language.description": "Set language to use",
+    "ui.settings.languagetoggle.title": "Language override",
+    "ui.settings.languagetoggle.description": "Allows to override the language below"
 }

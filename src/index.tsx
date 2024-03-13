@@ -14,18 +14,20 @@ import { GenIcon, IconBaseProps } from "react-icons";
 import { ConnectionInfo } from "./components/connectionInfo";
 import { Connect } from "./components/connect";
 import { Settings } from "./components/settings";
+import { SettingsManager } from "./settings";
 
 function NordVPNfa(props: IconBaseProps) {
   // @ts-ignore
   return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 48 48"},"child":[{"tag":"path","attr":{"d":"m6.59 36.89a21.71 21.71 0 0 1 17.41-34.39 21.71 21.71 0 0 1 17.41 34.39l-10.33-16.89-1.86 3.17 1.88 3.23-7.1-12.23-5.27 9 1.9 3.27-3.72-6.44z"}}]})(props); 
 }
 
-const Content: VFC<{ backend: Backend }> = ({backend}) => {
+const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend, settings}) => {
 
   const [ loaded, setLoaded ] = useState(false);
   const [ installed, setInstalled ] = useState(false);
   const [ loggedIn, setLoggedIn ] = useState(false);
   const [ errorSwitch, setErrorSwitch ] = useState(false);
+  const [ errorString, setErrorString ] = useState("");
 
   const loadNordVPN = async () => {
 
@@ -33,20 +35,23 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
       const isInstalledResponse = backend.isInstalled();
       setInstalled(await isInstalledResponse);
     } catch(error) {
-      setErrorSwitch(true);
+      triggerErrorSwitch(String(error));
     }
 
     try {
       const isLoggedInResponse = backend.isLoggedIn();
       setLoggedIn(await isLoggedInResponse);
     } catch (error) {
-      setErrorSwitch(true);
+      triggerErrorSwitch(String(error));
     }
+    
+    await backend.initLanguage();
 
     setLoaded(true);
   }
 
-  function triggerErrorSwitch() {
+  function triggerErrorSwitch(errorString: string) {
+    setErrorString(errorString);
     setErrorSwitch(true);
   }
 
@@ -60,6 +65,7 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
     <p>{backend.getLanguage().translate("ui.error.switch1")}</p>
     <p>{backend.getLanguage().translate("ui.error.switch2")}</p>
     <p>{backend.getLanguage().translate("ui.error.switch3")}</p>
+    <p>{backend.getLanguage().translate("ui.error.switch4")}{errorString}</p>
     </>)
   }
 
@@ -90,12 +96,12 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
     <>
     <ConnectionInfo backend={backend} /> 
     <Connect backend={backend} />
-    <Settings backend={backend} /> 
+    <Settings settings={settings} backend={backend} /> 
     </>);
   }
 
   if(!loaded) {
-    return (<p>{backend.getLanguage().translate("general.wait")}</p>);
+    return (<p>{"Initializing..."}</p>);
   }
 
   return (
@@ -106,11 +112,12 @@ const Content: VFC<{ backend: Backend }> = ({backend}) => {
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
-  var backend = new Backend(serverApi);
+  var settings = new SettingsManager(serverApi); 
+  var backend = new Backend(serverApi, settings);
   backend.refreshCache();
   return {
     title: <div className={quickAccessMenuClasses.Title}>NordVPNdeck</div>,
-    content: <Content backend={backend} />,
+    content: <Content settings={settings} backend={backend} />,
     icon: <NordVPNfa/>
   };
 });

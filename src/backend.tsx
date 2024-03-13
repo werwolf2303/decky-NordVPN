@@ -1,5 +1,6 @@
 import { ServerAPI } from "decky-frontend-lib";
 import { Language } from "./language/language";
+import { SettingsManager } from "./settings";
 
 
 export type Connection = {
@@ -23,14 +24,18 @@ export class Backend {
     private connectionRefreshMethod: Function = function(connection: Connection) {
         connection;
     };
-    private errorSwitchMethod: Function = function() {
+    private errorSwitchMethod: Function = function(errorString: string) {
     }
 
-    constructor(serverAPI: ServerAPI) {
+    constructor(serverAPI: ServerAPI, settings: SettingsManager) {
         this.serverAPI = serverAPI;
-        this.language = new Language();
+        this.language = new Language(this, settings);
     }
-    
+
+    async initLanguage() {
+        await this.language.init()
+    }
+
     getLanguage(): Language {
         return this.language;
     }
@@ -43,8 +48,8 @@ export class Backend {
         this.errorSwitchMethod = errorSwitchMethod;
     }
 
-    async triggerErrorSwitch() {
-        this.errorSwitchMethod();
+    async triggerErrorSwitch(errorString: string) {
+        this.errorSwitchMethod(errorString);
     }
 
     async execute(command: string, args: {} = {}) {

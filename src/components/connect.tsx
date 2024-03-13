@@ -10,7 +10,7 @@ export function Connect({backend}: {backend: Backend}): ReactElement {
       try {
         setCountries(await backend.getCountries());
       } catch (error) {
-        backend.triggerErrorSwitch();
+        backend.triggerErrorSwitch(String(error));
       }
     }
 

@@ -4,6 +4,7 @@ import { Field, PanelSection, PanelSectionRow, Spinner } from "decky-frontend-li
 
 export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
     const [ connection, setConnection ] = useState<Connection>();
+    const [ connectionTrans, setConnectionTrans ] = useState<string>(); 
     const [ loaded, setLoaded ] = useState(false); 
 
     function refreshConnectionInfo(connection: Connection) {
@@ -14,8 +15,14 @@ export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
 
     const init = async() => {
         refreshConnectionInfo(await backend.getConnection());
+
+        if(connection?.Status.includes("Disconnected")) {
+            setConnectionTrans(backend.getLanguage().translate("ui.connectioninfo.disconnected"));
+        }else{
+            setConnectionTrans(backend.getLanguage().translate("ui.connectioninfo.connected"));
+        }
+
         setLoaded(true);
-        console.log(connection)
     }
 
     useEffect(() => {
@@ -39,7 +46,7 @@ export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
             <PanelSectionRow>
                 <Field
                 label={backend.getLanguage().translate("ui.connectioninfo.status")}
-                >{connection?.Status}</Field>    
+                >{connectionTrans}</Field>    
             </PanelSectionRow>
             {!connection?.Status.includes("Disconnected") && 
                 <>

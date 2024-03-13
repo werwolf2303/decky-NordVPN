@@ -1,8 +1,9 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Backend } from "../backend";
-import { Dropdown, Field, PanelSection, PanelSectionRow, Spinner, ToggleField } from "decky-frontend-lib";
+import { Dropdown, Field, PanelSection, PanelSectionRow, SingleDropdownOption, Spinner, ToggleField } from "decky-frontend-lib";
+import { SettingsManager } from "../settings";
 
-export function Settings({backend}: {backend: Backend}): ReactElement {
+export function Settings({backend, settings}: {backend: Backend, settings: SettingsManager}): ReactElement {
     const [ firewall, setFirewall ] = useState(false);
     const [ routing, setRouting ] = useState(false);
     const [ analytics, setAnalytics ] = useState(false);
@@ -12,6 +13,9 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
     const [ autoconnect, setAutoConnect ] = useState(false);
     const [ ipv6, setIPv6 ] = useState(false);
     const [ landiscovery, setLanDiscovery ] = useState(false);
+    const [ manualLanguage, setManualLanguage ] = useState(false);
+    const [ language, setLanguage ] = useState("en");
+    const [ languages, setLanguages ] = useState<SingleDropdownOption[]>([]);
     const [ loaded, setLoaded ] = useState(false);
 
     const loadSettings = async () => {
@@ -24,6 +28,32 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
         setAutoConnect(await backend.getAutoConnect());
         setIPv6(await backend.getIPv6());
         setLanDiscovery(await backend.getLanDiscovery());
+        
+        if(!await settings.settingExists("manuallanguage")) {
+            if(!await settings.setSetting("manuallanguage", false)) {
+                backend.triggerErrorSwitch("setSetting('manallanguage') failed");
+            }
+        }
+
+        if(!await settings.settingExists("language")) {
+            if(!await settings.setSetting("language", "en")) {
+                backend.triggerErrorSwitch("setSetting('language') failed");
+            }
+        }
+        
+        setLanguage(await settings.getSetting("language", "en"))
+        setManualLanguage(Boolean(await settings.getSetting("manuallanguage", false)))
+
+        var languages: SingleDropdownOption[] = [];
+
+        for(var language of backend.getLanguage().getAvailableLanguages()) {
+            languages.push({
+                data: language.code,
+                label: <span>{language.fullName}</span>
+            });
+        }
+
+        setLanguages(languages);
 
         setLoaded(true)
     };
@@ -150,10 +180,34 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 }}
                 />
            </PanelSectionRow>
-           <PanelSection>
-            <Dropdown rgOptions={[]} selectedOption={undefined} menuLabel={backend.getLanguage().translate("ui.settings.language.title")}
-            ></Dropdown>
-           </PanelSection>
+           <PanelSectionRow>
+                <ToggleField
+                bottomSeparator="standard"
+                checked={manualLanguage}
+                label={backend.getLanguage().translate("ui.settings.languagetoggle.title")}
+                description={backend.getLanguage().translate("ui.settings.languagetoggle.description")}
+                onChange={(checked: boolean) => {
+                    setManualLanguage(checked);
+                    settings.setSetting("manuallanguage", checked);
+                }}
+                />
+           </PanelSectionRow>
+           <PanelSectionRow>
+            <Field
+            disabled={!manualLanguage}
+            label={backend.getLanguage().translate("ui.settings.language.title")}
+            >
+            <Dropdown 
+            disabled={!manualLanguage}
+            rgOptions={languages} 
+            selectedOption={language} 
+            onChange={(dropDown: SingleDropdownOption) => {
+                settings.setSetting("language", dropDown.data);
+                backend.getLanguage().init();
+            }}
+            />
+            </Field>
+           </PanelSectionRow>
         </PanelSection>
         </>
     )
