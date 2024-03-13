@@ -12,5 +12,5 @@
 
 - Login
 - Logout
-- Implement settings
+- Fully implement settings
 - Events

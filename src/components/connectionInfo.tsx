@@ -20,7 +20,7 @@ export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
 
     useEffect(() => {
         init()
-    });
+    }, []);
 
     if(!loaded) {
         return (

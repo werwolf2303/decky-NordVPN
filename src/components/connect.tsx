@@ -1,4 +1,4 @@
-import { PanelSection, Button, ButtonItem } from "decky-frontend-lib";
+import { PanelSection, ButtonItem } from "decky-frontend-lib";
 import { ReactElement, useEffect, useState } from "react";
 import { Backend } from "../backend";
 import { CountryList } from "./countryList";
@@ -16,7 +16,7 @@ export function Connect({backend}: {backend: Backend}): ReactElement {
 
     useEffect(() => {
       loadValues();
-    })
+    }, [])
 
     return (
       <PanelSection title={backend.getLanguage().translate("ui.connection.title")}>

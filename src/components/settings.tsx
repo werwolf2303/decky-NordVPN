@@ -1,6 +1,6 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Backend } from "../backend";
-import { PanelSection, PanelSectionRow, ToggleField } from "decky-frontend-lib";
+import { Dropdown, Field, PanelSection, PanelSectionRow, Spinner, ToggleField } from "decky-frontend-lib";
 
 export function Settings({backend}: {backend: Backend}): ReactElement {
     const [ firewall, setFirewall ] = useState(false);
@@ -12,6 +12,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
     const [ autoconnect, setAutoConnect ] = useState(false);
     const [ ipv6, setIPv6 ] = useState(false);
     const [ landiscovery, setLanDiscovery ] = useState(false);
+    const [ loaded, setLoaded ] = useState(false);
 
     const loadSettings = async () => {
         setFirewall(await backend.getFirewall());
@@ -23,11 +24,28 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
         setAutoConnect(await backend.getAutoConnect());
         setIPv6(await backend.getIPv6());
         setLanDiscovery(await backend.getLanDiscovery());
+
+        setLoaded(true)
     };
 
     useEffect(() => {
         loadSettings();
-    });
+    }, []);
+
+    if(!loaded) {
+        return(
+        <>
+        <PanelSection 
+        title={backend.getLanguage().translate("ui.settings.title")}>
+            <PanelSectionRow>
+                <Field label={backend.getLanguage().translate("general.loading")}>
+                    <Spinner />
+                </Field>
+            </PanelSectionRow>
+        </PanelSection>
+        </>
+        );
+    }
 
     return (
         <>
@@ -39,7 +57,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={firewall}
                 label={backend.getLanguage().translate("ui.settings.firewall.title")}
                 description={backend.getLanguage().translate("ui.settings.firewall.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setFirewall(checked);
                 }}
                 />
@@ -50,7 +68,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={routing}
                 label={backend.getLanguage().translate("ui.settings.routing.title")}
                 description={backend.getLanguage().translate("ui.settings.routing.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setRouting(checked);
                 }}
                 />
@@ -61,7 +79,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={analytics}
                 label={backend.getLanguage().translate("ui.settings.analytics.title")}
                 description={backend.getLanguage().translate("ui.settings.analytics.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setAnalytics(checked);
                 }}
                 />
@@ -72,7 +90,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={killswitch}
                 label={backend.getLanguage().translate("ui.settings.killswitch.title")}
                 description={backend.getLanguage().translate("ui.settings.killswitch.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setKillSwitch(checked);
                 }}
                 />
@@ -83,7 +101,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={threatprotection}
                 label={backend.getLanguage().translate("ui.settings.threatprotection.title")}
                 description={backend.getLanguage().translate("ui.settings.threatprotection.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setThreatProtectionLite(checked);
                 }}
                 />
@@ -94,7 +112,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={notify}
                 label={backend.getLanguage().translate("ui.settings.notify.title")}
                 description={backend.getLanguage().translate("ui.settings.notify.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setNotify(checked);
                 }}
                 />
@@ -105,7 +123,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={autoconnect}
                 label={backend.getLanguage().translate("ui.settings.autoconnect.title")}
                 description={backend.getLanguage().translate("ui.settings.autoconnect.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setAutoConnect(checked);
                 }}
                 />
@@ -116,7 +134,7 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={ipv6}
                 label={backend.getLanguage().translate("ui.settings.ipv6.title")}
                 description={backend.getLanguage().translate("ui.settings.ipv6.description")}
-                onChange={(checked) => {
+                onChange={(checked: boolean) => {
                     backend.setIPv6(checked);
                 }}
                 />
@@ -127,11 +145,15 @@ export function Settings({backend}: {backend: Backend}): ReactElement {
                 checked={landiscovery}
                 label={backend.getLanguage().translate("ui.settings.landiscovery.title")}
                 description={backend.getLanguage().translate("ui.settings.landiscovery.description")}
-                onChange={(checked) => {
-                    backend.setLanDiscovery(checked);
+                onChange={(checked: boolean) => {
+                    backend.setLanDiscovery(checked)
                 }}
                 />
            </PanelSectionRow>
+           <PanelSection>
+            <Dropdown rgOptions={[]} selectedOption={undefined} menuLabel={backend.getLanguage().translate("ui.settings.language.title")}
+            ></Dropdown>
+           </PanelSection>
         </PanelSection>
         </>
     )

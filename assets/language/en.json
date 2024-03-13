@@ -44,5 +44,7 @@
     "ui.settings.ipv6.title": "Enable IPv6",
     "ui.settings.ipv6.description": "Allow NordVPN to use IPv6",
     "ui.settings.landiscovery.title": "Enable LanDiscovery",
-    "ui.settings.landiscovery.description": "Allow devices on local network to be accessed while connected to vpn"
+    "ui.settings.landiscovery.description": "Allow devices on local network to be accessed while connected to vpn",
+    "ui.settings.language.title": "Language",
+    "ui.settings.language.description": "Set language to use"
 }

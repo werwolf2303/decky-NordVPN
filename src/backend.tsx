@@ -128,39 +128,39 @@ export class Backend {
     }
 
     async setFirewall(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setFirewall", state)).success;
+        return (await this.serverAPI.callPluginMethod("setFirewall", {state})).success;
     }
 
     async setRouting(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setRouting", state)).success;
+        return (await this.serverAPI.callPluginMethod("setRouting", {state})).success;
     }
 
     async setAnalytics(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setAnalytics", state)).success;
+        return (await this.serverAPI.callPluginMethod("setAnalytics", {state})).success;
     }
 
     async setKillSwitch(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setKillSwitch", state)).success;
+        return (await this.serverAPI.callPluginMethod("setKillSwitch", {state})).success;
     }
 
     async setThreatProtectionLite(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setThreatProtectionLite", state)).success;
+        return (await this.serverAPI.callPluginMethod("setThreatProtectionLite", {state})).success;
     }
 
     async setNotify(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setNotify", state)).success;
+        return (await this.serverAPI.callPluginMethod("setNotify", {state})).success;
     }
 
     async setAutoConnect(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setAutoConnect", state)).success;
+        return (await this.serverAPI.callPluginMethod("setAutoConnect", {state})).success;
     }
 
     async setIPv6(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setIPv6", state)).success;
+        return (await this.serverAPI.callPluginMethod("setIPv6", {state})).success;
     }
 
     async setLanDiscovery(state: boolean): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("setLanDiscovery", state)).success;
+        return (await this.serverAPI.callPluginMethod("setLanDiscovery", {state})).success;
     }
 
     async resetDefaults(): Promise<boolean> {

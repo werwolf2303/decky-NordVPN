@@ -4,7 +4,6 @@ import {
   PanelSectionRow,
   ServerAPI,
   quickAccessMenuClasses,
-  Button
 } from "decky-frontend-lib";
 import { 
   VFC,

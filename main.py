@@ -52,111 +52,96 @@ class Plugin:
         logger.info("Connecting to server in: " + countryName + " " + cityName)
         subprocess.run(["nordvpn", "connect", countryName, cityName], capture_output=True, text=True)
 
-    async def set(self, name, value):         
-        self.settings = []  
-        if(value):
-            value = "enabled"
-        else:
-            value = "disabled"
-        logger.info("Setting: " + name + " to " + value)
-        str(subprocess.run(["nordvpn", "set", name, value], capture_output=True, text=True).stdout)
-        self.parseSettings()
-
-    async def getSettingsRaw(self):
-        return "Technology:" + str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("Technology:")[1]
-
-    async def parseSettings(self):
-        self.settings = []
-        for line in self.getSettingsRaw().split("\n"):
-            if line.__contains__("Technology:"): continue
-            if line.__contains__("Firewall Mark:"): continue
-            if line.__contains__("Meshnet:"): continue
-            if line.__contains__("DNS:"): continue
-            if line.__eq__(""): continue
-
-            state = line.split(": ")[1]
-            if(state.__eq__("enabled")):
-                state = True
-            else:
-                state = False
-            self.settings.append(state)
-
-    async def getFirewall(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[0]
+    async def getSetting(self, name): 
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__(name):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
+        
+    def getFirewall(self):
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Firewall"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getRouting(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[1]
-    
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Routing"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
+
     async def getAnalytics(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[2]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Analytics"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getKillSwitch(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[3]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Kill Switch"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getThreatProtectionLite(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[4]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Threat Protection Lite"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getNotify(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[5]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Notify"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getAutoConnect(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[6]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("Auto-connect"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getIPv6(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[7]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("IPv6"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def getLanDiscovery(self):
-        if(len(self.settings) == 0): self.parseSettings()
-        return self.settings[8]
+        for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
+            if line.split(": ")[0].__contains__("LAN Discovery"):
+                return line.split(": ")[1].__contains__("enabled")
+        return ""
 
     async def setFirewall(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("firewall", state)
+        str(subprocess.run(["nordvpn", "set", "firewall", str(state)], capture_output=True, text=True).stdout)
 
     async def setRouting(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("routing", state)
+        str(subprocess.run(["nordvpn", "set", "routing", str(state)], capture_output=True, text=True).stdout)
 
     async def setAnalytics(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("analytics", state)
+        str(subprocess.run(["nordvpn", "set", "analytics", str(state)], capture_output=True, text=True).stdout)
 
     async def setKillSwitch(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("killswitch", state)
+        str(subprocess.run(["nordvpn", "set", "killswitch", str(state)], capture_output=True, text=True).stdout)
 
     async def setThreatProtectionLite(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("threatprotectionlite", state)
+        str(subprocess.run(["nordvpn", "set", "threatprotectionlite", str(state)], capture_output=True, text=True).stdout)
 
     async def setNotify(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("notify", state)
+        str(subprocess.run(["nordvpn", "set", "notify", str(state)], capture_output=True, text=True).stdout)
 
     async def setAutoConnect(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("autoconnect", state)
+        str(subprocess.run(["nordvpn", "set", "autoconnect", str(state)], capture_output=True, text=True).stdout)
 
     async def setIPv6(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("ipv6", state)
+        str(subprocess.run(["nordvpn", "set", "ipv6", str(state)], capture_output=True, text=True).stdout)
 
     async def setLanDiscovery(self, state):
-        if(len(self.settings) == 0): self.parseSettings()
-        self.set("lan-discovery", state)
+        str(subprocess.run(["nordvpn", "set", "lan-discovery", str(state)], capture_output=True, text=True).stdout)
 
     async def resetDefaults(self):
         logger.info("Resetting to defaults")
         str(subprocess.run(["nordvpn", "set", "defaults"], capture_output=True, text=True).stdout)
-        if(len(self.settings) == 0): self.parseSettings()
 
     async def isLoggedIn(self):
         logger.info("Called isLogin")
