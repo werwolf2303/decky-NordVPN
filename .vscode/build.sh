@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-CLI_LOCATION="$(pwd)/cli"
 echo "Building plugin in $(pwd)"
 printf "Please input sudo password to proceed.\n"
 
@@ -7,4 +6,4 @@ printf "Please input sudo password to proceed.\n"
 
 # printf "\n"
 
-echo $sudopass | sudo $CLI_LOCATION/decky plugin build $(pwd)
+echo $sudopass | sudo $(pwd)/cli/decky plugin build $(pwd)

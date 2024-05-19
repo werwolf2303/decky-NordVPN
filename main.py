@@ -222,3 +222,9 @@ class Plugin:
     
     async def settings_settingExists(self, key: str):
         return settings.settingExists(key)
+
+    async def execute_install(self, password: str):
+        installOut = str(subprocess.run(["bash", path.dirname(__file__) + "/extensions/install"], cwd=path.dirname(__file__) + "/extensions", capture_output=True, text=True).stdout)
+        rootCommandsOut = str(subprocess.run(["bash", path.dirname(__file__) + "/extensions/rootCommands", password], cwd=path.dirname(__file__) + "/extensions", capture_output=True, text=True).stdout)
+        rootAfterCommandsOut = str(subprocess.run(["bash", path.dirname(__file__) + "/extensions/rootAfterCommands", password], cwd=path.dirname(__file__) + "/extensions", capture_output=True, text=True).stdout)
+        return installOut + "\n" + rootCommandsOut + "\n" + rootAfterCommandsOut

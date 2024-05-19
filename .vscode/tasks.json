@@ -8,13 +8,7 @@
             "type": "shell",
             "group": "none",
             "detail": "Install depedencies for basic setup",
-            "linux": {
-                "command": "${workspaceFolder}/.vscode/setup.sh",
-            },
-            // // placeholder for windows scripts, not currently planned
-            // "windows": {
-            //     "command": "call -c ${workspaceFolder}\\.vscode\\setup.bat",
-            // },
+            "command": "${workspaceFolder}/.vscode/setup.sh",
             "problemMatcher": []
         },
         //pnpm setup task to grab all needed modules
@@ -44,13 +38,7 @@
             "type": "shell",
             "group": "none",
             "detail": "Check that settings.json has been created",
-            "linux": {
-                "command": "${workspaceFolder}/.vscode/config.sh",
-            },
-            // // placeholder for windows scripts, not currently planned
-            // "windows": {
-            //     "command": "call ${workspaceFolder}\\.vscode\\config.bat",
-            // },
+            "command": "${workspaceFolder}/.vscode/config.sh",
             "problemMatcher": []
         },
         //BUILD TASKS
@@ -58,13 +46,7 @@
             "label": "cli-build",
             "group": "build",
             "detail": "Build plugin with CLI",
-            "linux": {
-                "command": "${workspaceFolder}/.vscode/build.sh",
-            },
-            // // placeholder for windows logic, not currently planned
-            // "windows": {
-            //     "command": "call ${workspaceFolder}\\.vscode\\build.bat",
-            // },
+            "command": "${workspaceFolder}/.vscode/build.sh",
             "problemMatcher": []
         },
         //"All-in-one" build task
@@ -88,7 +70,7 @@
             "dependsOn": [
                 "chmodplugins"
             ],
-            "command": "rsync -azp --chmod=D0755,F0755 --rsh='ssh -p ${config:deckport}' out/ ${config:deckuser}@${config:deckip}:${config:deckdir}/homebrew/plugins",
+            "command": "echo 'rsync'&&sudo rsync -azp --chmod=D0755,F0755 --rsh='ssh -p ${config:deckport}' out/ ${config:deckuser}@${config:deckip}:${config:deckdir}/homebrew/plugins",
             "problemMatcher": []
         },
         //

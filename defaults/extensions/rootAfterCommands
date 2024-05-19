@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "$1" | su -c "rm -R /home/deck/nordvpndecky"
+echo "$1" | su -c "steamos-readonly enable"
+echo "$1" | su -c "usermod -aG nordvpn deck"
