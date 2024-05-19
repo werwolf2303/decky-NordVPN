@@ -104,34 +104,26 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
     return (<>
     <PanelSection title={backend.getLanguage().translate("ui.login.title")}>
       <PanelSectionRow>
-      <p>{backend.getLanguage().translate("ui.login.txt1")}</p>
-      <p>{backend.getLanguage().translate("ui.login.txt2")}</p>
-      <p>{backend.getLanguage().translate("ui.login.txt3")}</p>
+        <a>Take a photo of this ;)</a>
+        <br/>
+        <a>To login into NordVPN:</a>
+        <br/>
+        <a>1. Go into desktop mode</a>
+        <br/>
+        <a>2. Open Konsole</a>
+        <br/>
+        <a>3. Enter this: nordvpn login</a>
+        <br/>
+        <a>4. Copy the url after: continue in the browser</a>
+        <br/>
+        <a>5. Paste the url in a browser</a>
+        <br/>
+        <a>6. Follow the instructions</a>
+        <br/>
+        <a>7. Success you are now logged in</a>
+        <br/>
+        <a>8. Switch back to game mode</a>
       </PanelSectionRow>
-      <ButtonItem
-    onClick={() => {
-      const executeAsnyc = async() => {
-        Navigation.CloseSideMenus();
-        var loginURL = await backend.login();
-        Navigation.NavigateToExternalWeb(loginURL);
-        var checkURL = setInterval(checkURLFunction, 10);
-        function checkURLFunction() {
-          var url = Router.WindowStore?.GamepadUIMainWindowInstance?.BrowserWindow.document.querySelector('[class^="mainbrowser_URL_"]')?.innerHTML
-          if(url?.includes("nordvpn://login") && url?.includes("exchange_token")) {
-            const browserCallback = async() => {
-              console.log(await backend.loginCallback(url?.split("amp;").join("")))
-              Router.WindowStore?.GamepadUIMainWindowInstance?.BrowserWindow.opener.history.back()
-              backend.refreshCache
-              Navigation.OpenQuickAccessMenu(QuickAccessTab.Decky)
-            }
-            browserCallback()
-            clearInterval(checkURL)
-          }
-        }
-      }
-      executeAsnyc();
-    }}
-    >Open debug browser</ButtonItem>
     </PanelSection>
     </>);
   }

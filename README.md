@@ -1,5 +1,5 @@
 # A NordVPN Decky plugin <h3>WIP</h3>
-## This plugin is in a early beta stage! Expect bugs
+## This plugin is in a alpha phase
 
 <h4>The following works:</h4>
 
@@ -7,10 +7,7 @@
 - Select specific server
 - Disconnect
 - Show connection info
-
-<h5>ToDo:</h5>
-
 - Login
 - Logout
-- Fully implement settings
-- Events
+- Settings
+- Installation
