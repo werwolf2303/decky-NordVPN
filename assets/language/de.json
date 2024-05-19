@@ -33,7 +33,7 @@
     "ui.settings.firewall.title": "Firewall aktivieren",
     "ui.settings.firewall.description": "Verhindert, dass schädliche oder unbefugte Benutzer auf Ihre vpn-Verbindung zugreifen oder sie ausnutzen",
     "ui.settings.routing.title": "Routing aktivieren",
-    "ui.settings.routing.description": "Ermöglicht die Weiterleitung von Internet über kompatible Geräte in Ihrem Meshnet",
+    "ui.settings.routing.description": "Ermöglicht die Weiterleitung vom Internet über kompatible Geräte in Ihrem Meshnet",
     "ui.settings.analytics.title": "Analytics aktivieren",
     "ui.settings.analytics.description": "Erlauben Sie das Senden anonymer Daten, um NordVPN zu verbessern",
     "ui.settings.killswitch.title": "KillSwitch aktivieren",
@@ -51,5 +51,6 @@
     "ui.settings.language.title": "Sprache",
     "ui.settings.language.description": "Sprache auswählen",
     "ui.settings.languagetoggle.title": "Sprache überschreiben",
-    "ui.settings.languagetoggle.description": "Erlaubt die Sprache unabhängig von SteamOS zu ändern"
+    "ui.settings.languagetoggle.description": "Erlaubt die Sprache unabhängig von SteamOS zu ändern",
+    "ui.settings.logout.title": "Ausloggen"
 }

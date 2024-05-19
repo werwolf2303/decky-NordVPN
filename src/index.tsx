@@ -4,6 +4,11 @@ import {
   PanelSectionRow,
   ServerAPI,
   quickAccessMenuClasses,
+  ButtonItem,
+  Router,
+  Navigation,
+  SideMenu,
+  QuickAccessTab,
 } from "decky-frontend-lib";
 import { 
   VFC,
@@ -15,6 +20,7 @@ import { ConnectionInfo } from "./components/connectionInfo";
 import { Connect } from "./components/connect";
 import { Settings } from "./components/settings";
 import { SettingsManager } from "./settings";
+import { BrowserRoute } from "./routes/browser";
 
 function NordVPNfa(props: IconBaseProps) {
   // @ts-ignore
@@ -87,6 +93,30 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
       <p>{backend.getLanguage().translate("ui.login.txt2")}</p>
       <p>{backend.getLanguage().translate("ui.login.txt3")}</p>
       </PanelSectionRow>
+      <ButtonItem
+    onClick={() => {
+      const executeAsnyc = async() => {
+        Navigation.CloseSideMenus();
+        var loginURL = await backend.login();
+        Navigation.NavigateToExternalWeb(loginURL);
+        var checkURL = setInterval(checkURLFunction, 10);
+        function checkURLFunction() {
+          var url = Router.WindowStore?.GamepadUIMainWindowInstance?.BrowserWindow.document.querySelector('[class^="mainbrowser_URL_"]')?.innerHTML
+          if(url?.includes("nordvpn://login") && url?.includes("exchange_token")) {
+            const browserCallback = async() => {
+              console.log(await backend.loginCallback(url?.split("amp;").join("")))
+              Router.WindowStore?.GamepadUIMainWindowInstance?.BrowserWindow.opener.history.back()
+              backend.refreshCache
+              Navigation.OpenQuickAccessMenu(QuickAccessTab.Decky)
+            }
+            browserCallback()
+            clearInterval(checkURL)
+          }
+        }
+      }
+      executeAsnyc();
+    }}
+    >Open debug browser</ButtonItem>
     </PanelSection>
     </>);
   }
@@ -115,6 +145,7 @@ export default definePlugin((serverApi: ServerAPI) => {
   var settings = new SettingsManager(serverApi); 
   var backend = new Backend(serverApi, settings);
   backend.refreshCache();
+
   return {
     title: <div className={quickAccessMenuClasses.Title}>NordVPNdeck</div>,
     content: <Content settings={settings} backend={backend} />,

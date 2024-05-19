@@ -192,6 +192,10 @@ export class Backend {
         return (await this.serverAPI.callPluginMethod("login", {})).result as string;
     }
 
+    async loginCallback(url: any): Promise<string> {
+        return (await this.serverAPI.callPluginMethod("loginCallback", {"url": url})).result as string
+    }
+
     async getConnection(): Promise<Connection> {
         return (await this.serverAPI.callPluginMethod("getConnection", {})).result as Connection;
     }

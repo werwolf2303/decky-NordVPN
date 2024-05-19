@@ -1,6 +1,6 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Backend } from "../backend";
-import { Dropdown, Field, PanelSection, PanelSectionRow, SingleDropdownOption, Spinner, ToggleField } from "decky-frontend-lib";
+import { ButtonItem, Dropdown, Field, Navigation, PanelSection, PanelSectionRow, SingleDropdownOption, Spinner, ToggleField } from "decky-frontend-lib";
 import { SettingsManager } from "../settings";
 
 export function Settings({backend, settings}: {backend: Backend, settings: SettingsManager}): ReactElement {
@@ -189,6 +189,7 @@ export function Settings({backend, settings}: {backend: Backend, settings: Setti
                 onChange={(checked: boolean) => {
                     setManualLanguage(checked);
                     settings.setSetting("manuallanguage", checked);
+                    backend.getLanguage().init();
                 }}
                 />
            </PanelSectionRow>
@@ -207,6 +208,21 @@ export function Settings({backend, settings}: {backend: Backend, settings: Setti
             }}
             />
             </Field>
+           </PanelSectionRow>
+           <PanelSectionRow>
+            <ButtonItem
+            layout="below"
+            onClick={() => {
+                const asyncLogout = async() => {
+                    await backend.logout()
+                    backend.refreshCache()
+                    Navigation.NavigateBack()
+                }
+                asyncLogout()
+            }}
+            >
+                {backend.getLanguage().translate("ui.settings.logout.title")}
+            </ButtonItem>
            </PanelSectionRow>
         </PanelSection>
         </>

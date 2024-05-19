@@ -159,6 +159,9 @@ class Plugin:
         logger.info("Called isLogin")
         return str(subprocess.run(["nordvpn", "account"], capture_output=True, text=True).stdout).__contains__("VPN Service")
     
+    async def login(self):
+        return str(subprocess.run(["nordvpn", "login"], text=True, capture_output=True).stdout).replace("\n", "").split("browser: ")[1]
+    
     async def logout(self):
         try:
             str(subprocess.run(["nordvpn", "logout"], capture_output=True, text=True).stdout)
@@ -184,7 +187,7 @@ class Plugin:
         output = str(subprocess.run(["nordvpn", "status"], capture_output=True, text=True).stdout).split("Status")[1]
         if(output.__contains__("Disconnected")):
             return {
-                "Status": "",
+                "Status": "ui.connectioninfo.disconnected",
                 "Hostname": "N/A",
                 "IP": "N/A",
                 "Country": "N/A",
@@ -197,7 +200,7 @@ class Plugin:
         else:
             output = ("Status" + output).split("\n")
             return {
-                "Status": output[0].split(": ")[1],
+                "Status": "ui.connectioninfo.connected",
                 "Hostname": output[1].split(": ")[1],
                 "IP": output[2].split(": ")[1],
                 "Country": output[3].split(": ")[1],
@@ -207,6 +210,9 @@ class Plugin:
                 "Transfer": output[7].split(": ")[1],
                 "Uptime": output[8].split(": ")[1]
             }
+        
+    async def loginCallback(self, url: str):
+        return str(subprocess.run(["nordvpn", "login", "--callback", url], capture_output=True, text=True).stdout)
           
     async def settings_read(self):
         return settings.read()
