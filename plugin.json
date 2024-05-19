@@ -4,7 +4,7 @@
   "flags": ["root"],
   "publish": {
     "tags": ["vpn"],
-    "description": "A lightweight NordVPN client for decky",
+    "description": "NordVPN client for decky",
     "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
   }
 }
