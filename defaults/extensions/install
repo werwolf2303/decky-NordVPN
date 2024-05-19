@@ -1,7 +1,0 @@
-#!/bin/bash
-
-mkdir /home/deck/nordvpndecky
-cd /home/deck/nordvpndecky
-git clone https://aur.archlinux.org/nordvpn-bin.git
-cd nordvpn-bin
-makepkg -si --noconfirm

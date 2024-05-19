@@ -7,8 +7,8 @@ import {
   ButtonItem,
   Router,
   Navigation,
-  SideMenu,
   QuickAccessTab,
+  TextField
 } from "decky-frontend-lib";
 import { 
   VFC,
@@ -20,7 +20,9 @@ import { ConnectionInfo } from "./components/connectionInfo";
 import { Connect } from "./components/connect";
 import { Settings } from "./components/settings";
 import { SettingsManager } from "./settings";
-import { BrowserRoute } from "./routes/browser";
+import { 
+  showDialog
+} from "./utils";
 
 function NordVPNfa(props: IconBaseProps) {
   // @ts-ignore
@@ -79,8 +81,21 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
     return (
     <PanelSection title={backend.getLanguage().translate("general.error")}>
       <PanelSectionRow>
-      <p>{backend.getLanguage().translate("ui.error.binary1")}</p>
-      <p>{backend.getLanguage().translate("ui.error.binary2")}</p>
+        <a>Take a photo of this ;)</a>
+        <br/>
+        <a>To install NordVPN:</a>
+        <br/>
+        <a>1. Go into desktop mode</a>
+        <br/>
+        <a>2. Open Konsole</a>
+        <br/>
+        <a>3. Enter this: cd /home/deck/homebrew/plugins/NordVPNdeck/extensions</a>
+        <br/>
+        <a>4: Enter this: sudo chmod +x install.sh</a>
+        <br/>
+        <a>5. Enter this: ./install.sh</a>
+        <br/>
+        <a>6. Restart the SteamDeck</a>
       </PanelSectionRow>
       </PanelSection>);
   }
