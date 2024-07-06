@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#Notify user to set user password
 sudo steamos-readonly disable
 sudo rm /usr/lib/holo/pacmandb/db.lck
 sudo rm /etc/ld.so.conf.d/fakeroot.conf
@@ -20,3 +21,5 @@ makepkg -si --noconfirm
 sudo rm -R /home/deck/nordvpndecky
 sudo steamos-readonly enable
 sudo usermod -aG nordvpn deck
+sudo systemctl enable --now nordvpnd
+#Notify user to reboot
