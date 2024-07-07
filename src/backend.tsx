@@ -205,4 +205,8 @@ export class Backend {
         this.cachedLoggedIn = (await this.serverAPI.callPluginMethod("isLoggedIn", {})).result as boolean;
         this.cachedCountries = (await this.serverAPI.callPluginMethod("getCountries", {})).result as string;
     }
+
+    async installNordVPN() {
+        return (await this.serverAPI.callPluginMethod("install_nordVPN", {})).result as string;
+    }
 }

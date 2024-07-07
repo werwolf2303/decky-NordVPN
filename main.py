@@ -229,3 +229,8 @@ class Plugin:
     
     async def settings_settingExists(self, key: str):
         return settings.settingExists(key)
+
+    async def install_nordVPN(self):
+        output = str(subprocess.run(["bash", path.dirname(__file__) + "/extensions/install.sh"], cwd=path.dirname(__file__) + "/extensions", capture_output=True, text=True).stdout)
+        logger.info(output)
+        return output

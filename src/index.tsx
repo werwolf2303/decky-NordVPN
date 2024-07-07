@@ -8,7 +8,9 @@ import {
   Router,
   Navigation,
   QuickAccessTab,
-  TextField
+  TextField,
+  Field,
+  DialogButton
 } from "decky-frontend-lib";
 import { 
   VFC,
@@ -23,6 +25,7 @@ import { SettingsManager } from "./settings";
 import { 
   showDialog
 } from "./utils";
+import { BrowserViewRouter } from "./browserStuff/BrowserView";
 
 function NordVPNfa(props: IconBaseProps) {
   // @ts-ignore
@@ -81,23 +84,23 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
     return (
     <PanelSection title={backend.getLanguage().translate("general.error")}>
       <PanelSectionRow>
-        <a>Take a photo of this ;)</a>
-        <br/>
-        <a>To install NordVPN:</a>
-        <br/>
-        <a>1. Go into desktop mode</a>
-        <br/>
-        <a>2. Open Konsole</a>
-        <br/>
-        <a>3. Enter this: cd /home/deck/homebrew/plugins/NordVPNdeck/extensions</a>
-        <br/>
-        <a>4: Enter this: sudo chmod +x install.sh</a>
-        <br/>
-        <a>5. Enter this: ./install.sh</a>
-        <br/>
-        <a>6. Restart the SteamDeck</a>
+        <a>NordVPN was not found!</a>
+        <br />
+        <a>Click 'Install' to install NordVPN</a>
       </PanelSectionRow>
-      </PanelSection>);
+      <PanelSectionRow>
+        <ButtonItem
+        onClick={() => {
+          const exec = async() => {
+            await backend.installNordVPN();
+            showDialog("Info", "Please restart the SteamDeck to complete the installation")
+          };
+          exec();
+        }}
+        layout="below"
+        >Install</ButtonItem>
+      </PanelSectionRow>
+    </PanelSection>);
   }
 
   if(loaded && !loggedIn) {
@@ -123,6 +126,18 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
         <a>7. Success you are now logged in</a>
         <br/>
         <a>8. Switch back to game mode</a>
+        <ButtonItem
+        onClick={() => {
+          const asyncfunc = async() => {
+            const url = await backend.login();
+            const browser = Router.WindowStore?.GamepadUIMainWindowInstance.CreateBrowserView("Test");
+            window.browser = browser;
+            browser.LoadURL(url);
+          }
+          
+          Navigation.Navigate("/dnvpnBrowser");
+        }}
+        >Fuck around</ButtonItem>
       </PanelSectionRow>
     </PanelSection>
     </>);
@@ -153,9 +168,24 @@ export default definePlugin((serverApi: ServerAPI) => {
   var backend = new Backend(serverApi, settings);
   backend.refreshCache();
 
+  const BrowserRouter: VFC = () => {
+    return (
+      <div style={{ overflowY: 'scroll', marginTop: '60px', marginBottom: '60px', height: 'calc(100%-80px)' }}>
+        <BrowserViewRouter backend={backend} />
+      </div>
+    )
+  }
+
+  serverApi.routerHook.addRoute("/dnvpnBrowser", BrowserRouter, {
+    exact: true,
+  });
+
   return {
     title: <div className={quickAccessMenuClasses.Title}>NordVPNdeck</div>,
     content: <Content settings={settings} backend={backend} />,
-    icon: <NordVPNfa/>
+    icon: <NordVPNfa/>,
+    onDismount() {
+      serverApi.routerHook.removeRoute("/dnvpnBrowser");
+    }
   };
 });

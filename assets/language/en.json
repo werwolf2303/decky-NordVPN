@@ -52,5 +52,5 @@
     "ui.settings.language.description": "Set language to use",
     "ui.settings.languagetoggle.title": "Language override",
     "ui.settings.languagetoggle.description": "Allows to override the language below",
-    "ui.settings.logout.title": "Einloggen"
+    "ui.settings.logout.title": "Logout"
 }
