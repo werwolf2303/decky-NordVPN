@@ -6,14 +6,11 @@ import {
   quickAccessMenuClasses,
   ButtonItem,
   Router,
-  Navigation,
-  QuickAccessTab,
-  TextField,
-  Field,
-  DialogButton
+  Navigation
 } from "decky-frontend-lib";
 import { 
   VFC,
+  useEffect,
   useState
 } from "react";
 import { Backend } from "./backend";
@@ -68,7 +65,9 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
 
   backend.setErrorSwitchMethod(triggerErrorSwitch);
 
-  loadNordVPN();
+  useEffect(() => {
+    loadNordVPN();
+  }, []);
   
   if(errorSwitch) {
     return (
@@ -84,9 +83,9 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
     return (
     <PanelSection title={backend.getLanguage().translate("general.error")}>
       <PanelSectionRow>
-        <a>NordVPN was not found!</a>
+        <a>{backend.getLanguage().translate("ui.binary.txt1")}</a>
         <br />
-        <a>Click 'Install' to install NordVPN</a>
+        <a>{backend.getLanguage().translate("ui.binary.txt2")}</a>
       </PanelSectionRow>
       <PanelSectionRow>
         <ButtonItem
@@ -98,7 +97,7 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
           exec();
         }}
         layout="below"
-        >Install</ButtonItem>
+        >{backend.getLanguage().translate("ui.binary.button")}</ButtonItem>
       </PanelSectionRow>
     </PanelSection>);
   }
@@ -106,38 +105,14 @@ const Content: VFC<{ backend: Backend, settings: SettingsManager }> = ({backend,
   if(loaded && !loggedIn) {
     return (<>
     <PanelSection title={backend.getLanguage().translate("ui.login.title")}>
+      <a>{backend.getLanguage().translate("ui.login.txt1")}</a>
       <PanelSectionRow>
-        <a>Take a photo of this ;)</a>
-        <br/>
-        <a>To login into NordVPN:</a>
-        <br/>
-        <a>1. Go into desktop mode</a>
-        <br/>
-        <a>2. Open Konsole</a>
-        <br/>
-        <a>3. Enter this: nordvpn login</a>
-        <br/>
-        <a>4. Copy the url after: continue in the browser</a>
-        <br/>
-        <a>5. Paste the url in a browser</a>
-        <br/>
-        <a>6. Follow the instructions</a>
-        <br/>
-        <a>7. Success you are now logged in</a>
-        <br/>
-        <a>8. Switch back to game mode</a>
         <ButtonItem
+        layout="below"
         onClick={() => {
-          const asyncfunc = async() => {
-            const url = await backend.login();
-            const browser = Router.WindowStore?.GamepadUIMainWindowInstance.CreateBrowserView("Test");
-            window.browser = browser;
-            browser.LoadURL(url);
-          }
-          
           Navigation.Navigate("/dnvpnBrowser");
         }}
-        >Fuck around</ButtonItem>
+        >{backend.getLanguage().translate("ui.login.button")}</ButtonItem>
       </PanelSectionRow>
     </PanelSection>
     </>);

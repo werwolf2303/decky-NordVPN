@@ -21,15 +21,17 @@ export class Backend {
     private cachedLoggedIn = false;
     private cachedCountries = "";
     private language: Language;
-    private connectionRefreshMethod: Function = function(connection: Connection) {
-        connection;
-    };
+    private connectionRefreshMethodSubscribers: Function[] = [];
     private errorSwitchMethod: Function = function(errorString: string) {
     }
 
     constructor(serverAPI: ServerAPI, settings: SettingsManager) {
         this.serverAPI = serverAPI;
         this.language = new Language(this, settings);
+    }
+
+    getServerAPI(): ServerAPI {
+        return this.serverAPI;
     }
 
     async initLanguage() {
@@ -40,8 +42,14 @@ export class Backend {
         return this.language;
     }
 
-    async setConnectionInfoRefresh(connectionRefreshMethod: Function) {
-        this.connectionRefreshMethod = connectionRefreshMethod;
+    triggerConnectionInfoRefresh(connection: Connection) {
+        for(var i = 0; i < this.connectionRefreshMethodSubscribers.length; i++) {
+            this.connectionRefreshMethodSubscribers[i](connection);
+        }
+    }
+
+    subscribeToConnectionInfoRefresh(func: Function) {
+        this.connectionRefreshMethodSubscribers.push(func);
     }
 
     async setErrorSwitchMethod(errorSwitchMethod: Function) {
@@ -74,8 +82,9 @@ export class Backend {
 
     connect(countryName: string, cityName: string) {
         this.serverAPI.callPluginMethod("connect", {"countryName" : countryName, "cityName" : cityName}).then(() => {
+            this.getServerAPI().toaster.toast({title: "decky-NordVPN", body: "Connected"});
             this.getConnection().then((response) => {
-                this.connectionRefreshMethod(response);
+                this.triggerConnectionInfoRefresh(response);
             });
         });
     }
@@ -88,12 +97,22 @@ export class Backend {
         return (await this.serverAPI.callPluginMethod("isConnected", {})).result as boolean;
     }
 
-    async disconnect(): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("disconnect", {})).success;
+    disconnect() {
+        this.serverAPI.callPluginMethod("disconnect", {}).then(() => {
+            this.getServerAPI().toaster.toast({title: "decky-NordVPN", body: "Disconnected"});
+            this.getConnection().then((response) => {
+                this.triggerConnectionInfoRefresh(response);
+            })
+        })
     }
 
-    async autoConnect(): Promise<boolean> {
-        return (await this.serverAPI.callPluginMethod("autoConnect", {})).success;
+    autoConnect() {
+        this.serverAPI.callPluginMethod("autoConnect", {}).then(() => {
+            this.getServerAPI().toaster.toast({title: "decky-NordVPN", body: "Connected"});
+            this.getConnection().then((response) => {
+                this.triggerConnectionInfoRefresh(response);
+            })
+        });
     }
 
     async getFirewall(): Promise<boolean> {

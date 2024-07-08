@@ -5,16 +5,20 @@ import { Field, PanelSection, PanelSectionRow, Spinner } from "decky-frontend-li
 export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
     const [ connection, setConnection ] = useState<Connection>();
     const [ loaded, setLoaded ] = useState(false); 
+    var subscribed = false;
 
     function refreshConnectionInfo(connection: Connection) {
+        setLoaded(false);
         setConnection(connection);
+        setLoaded(true);
     }
 
-    backend.setConnectionInfoRefresh(refreshConnectionInfo);
-
     const init = async() => {
+        if(!subscribed) {
+            backend.subscribeToConnectionInfoRefresh(refreshConnectionInfo);
+            subscribed = true;
+        } 
         refreshConnectionInfo(await backend.getConnection());
-
         setLoaded(true);
     }
 
@@ -22,27 +26,26 @@ export function ConnectionInfo({backend}: {backend: Backend}): ReactElement {
         init()
     }, []);
 
-    if(!loaded) {
-        return (
-            <PanelSection title={backend.getLanguage().translate("ui.connectioninfo.title")}>
-                <PanelSectionRow>
-                    <Field label={backend.getLanguage().translate("general.loading")}>
-                        <Spinner />
-                    </Field>
-                </PanelSectionRow>
-            </PanelSection>
-        )
-    }
-
     return (
         <PanelSection title={backend.getLanguage().translate("ui.connectioninfo.title")}>
+            {!loaded && <PanelSectionRow>
+                <Field label={backend.getLanguage().translate("general.loading")}>
+                   <Spinner />
+                </Field>
+            </PanelSectionRow>}
+            {(connection?.Status === "ui.connectioninfo.disconnected") &&
             <PanelSectionRow>
                 <Field
                 label={backend.getLanguage().translate("ui.connectioninfo.status")}
-                >{backend.getLanguage().translate(String(connection?.Status))}</Field>    
-            </PanelSectionRow>
+                >{backend.getLanguage().translate("ui.connectioninfo.disconnected")}</Field>    
+            </PanelSectionRow>}
             {(connection?.Status === "ui.connectioninfo.connected") && 
                 <>
+                <PanelSectionRow>
+                <Field
+                label={backend.getLanguage().translate("ui.connectioninfo.status")}
+                >{backend.getLanguage().translate("ui.connectioninfo.connected")}</Field>   
+                </PanelSectionRow>
                 <PanelSectionRow>
                 <Field
                 label={backend.getLanguage().translate("ui.connectioninfo.country")}

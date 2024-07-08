@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState, VFC} from "react";
 import { BrowserContainer } from "./BrowserContainer";
 import { Backend } from "../backend";
-import { afterPatch, findClassModule, GamepadEvent, Focusable, Router} from "decky-frontend-lib"
+import { afterPatch, findClassModule, GamepadEvent, Focusable, Router, Navigation} from "decky-frontend-lib"
 
 function BrowserViewRouter({backend}: {backend: Backend}): ReactElement {
     type BrowserClasses = Record<
@@ -47,14 +47,34 @@ function BrowserViewRouter({backend}: {backend: Backend}): ReactElement {
     }
 
     const [ loaded, setLoaded ] = useState(false);
-    const [ browserObj, setBrowserObj] = useState(null);
+    const [ browserObj, setBrowserObj ] = useState(null);
 
     const asyncLoad = async() => {
         const url = await backend.login();
-        const browser = Router.WindowStore?.GamepadUIMainWindowInstance?.CreateBrowserView("Test");
-        window.browser = browser;
-        browser.LoadURL(url);
+        //@ts-ignore
+        const browser = Router.WindowStore?.GamepadUIMainWindowInstance?.CreateBrowserView("DNVPNBrowserView");
         setBrowserObj(browser);
+        browser.m_browserView.on("set-title", (title: string) => {
+            const browserURL = browser.URL;
+            if(browserURL.includes("https://auth.nordvpn.com/product/nordvpn/login/success?")) {
+                try {
+                console.log("Catched the callback URL");
+                const login = async() => {
+                    var craftedNordVPNEndpoint = "nordvpn://login?action=login&exchange_token=" + browserURL.split("&exchange_token=")[1] + "&status=done";
+                    const returned = await backend.loginCallback(craftedNordVPNEndpoint);
+                    console.log(returned);
+                }
+                login();
+                Navigation.NavigateBack();
+                browser.Destroy();
+                backend.refreshCache();
+                backend.getServerAPI().toaster.toast({ title: backend.getLanguage().translate("ui.login.error.toast.title"), body: backend.getLanguage().translate("ui.login.error.toast.msg") });
+            }catch{
+                backend.getServerAPI().toaster.toast({ title: backend.getLanguage().translate("ui.login.toast.title"), body: backend.getLanguage().translate("ui.login.toast.msg") });
+            }
+            }
+        })
+        browser.LoadURL(url);
         setLoaded(true);
     }
 
@@ -82,6 +102,10 @@ function BrowserViewRouter({backend}: {backend: Backend}): ReactElement {
                     SteamClient.Input.ControllerKeyboardSetKeyState(88, true)
                     SteamClient.Input.ControllerKeyboardSetKeyState(88, false)
                 }
+            }}
+
+            onButtonDown={(evt: GamepadEvent) => {
+                if (evt.detail.button == 2) browserObj.Destroy();
             }}
 
             onGamepadDirection={(evt: GamepadEvent) => {

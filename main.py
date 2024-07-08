@@ -55,15 +55,15 @@ class Plugin:
         
     async def disconnect(self):
         logger.info("Disconnecting")
-        str(subprocess.run(["nordvpn", "disconnect"], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "disconnect"], capture_output=True, text=True).stdout)
 
     async def autoConnect(self):
         logger.info("Autoconnecting")
-        str(subprocess.run(["nordvpn", "connect"], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "connect"], capture_output=True, text=True).stdout)
 
     async def connect(self, countryName, cityName):
         logger.info("Connecting to server in: " + countryName + " " + cityName)
-        subprocess.run(["nordvpn", "connect", countryName, cityName], capture_output=True, text=True)
+        return str(subprocess.run(["nordvpn", "connect", countryName, cityName], capture_output=True, text=True).stdout)
 
     async def getSetting(self, name): 
         for line in str(subprocess.run(["nordvpn", "settings"], capture_output=True, text=True).stdout).split("\n"):
@@ -126,35 +126,35 @@ class Plugin:
         return ""
 
     async def setFirewall(self, state):
-        str(subprocess.run(["nordvpn", "set", "firewall", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "firewall", str(state)], capture_output=True, text=True).stdout)
 
     async def setRouting(self, state):
-        str(subprocess.run(["nordvpn", "set", "routing", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "routing", str(state)], capture_output=True, text=True).stdout)
 
     async def setAnalytics(self, state):
-        str(subprocess.run(["nordvpn", "set", "analytics", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "analytics", str(state)], capture_output=True, text=True).stdout)
 
     async def setKillSwitch(self, state):
-        str(subprocess.run(["nordvpn", "set", "killswitch", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "killswitch", str(state)], capture_output=True, text=True).stdout)
 
     async def setThreatProtectionLite(self, state):
-        str(subprocess.run(["nordvpn", "set", "threatprotectionlite", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "threatprotectionlite", str(state)], capture_output=True, text=True).stdout)
 
     async def setNotify(self, state):
-        str(subprocess.run(["nordvpn", "set", "notify", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "notify", str(state)], capture_output=True, text=True).stdout)
 
     async def setAutoConnect(self, state):
-        str(subprocess.run(["nordvpn", "set", "autoconnect", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "autoconnect", str(state)], capture_output=True, text=True).stdout)
 
     async def setIPv6(self, state):
-        str(subprocess.run(["nordvpn", "set", "ipv6", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "ipv6", str(state)], capture_output=True, text=True).stdout)
 
     async def setLanDiscovery(self, state):
-        str(subprocess.run(["nordvpn", "set", "lan-discovery", str(state)], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "lan-discovery", str(state)], capture_output=True, text=True).stdout)
 
     async def resetDefaults(self):
         logger.info("Resetting to defaults")
-        str(subprocess.run(["nordvpn", "set", "defaults"], capture_output=True, text=True).stdout)
+        return str(subprocess.run(["nordvpn", "set", "defaults"], capture_output=True, text=True).stdout)
 
     async def isLoggedIn(self):
         logger.info("Called isLogin")
@@ -199,17 +199,23 @@ class Plugin:
                 "Uptime": "N/A"
             }
         else:
-            output = ("Status" + output).split("\n")
+            output = str("Status" + output).split("\n")
+            data_list = [item for item in output if item]
+            data_dict = {}
+            for item in data_list:
+                key, value = item.split(": ", 1)
+                data_dict[key] = value
+
             return {
                 "Status": "ui.connectioninfo.connected",
-                "Hostname": output[1].split(": ")[1],
-                "IP": output[2].split(": ")[1],
-                "Country": output[3].split(": ")[1],
-                "City": output[4].split(": ")[1],
-                "CurrentTechnology": output[5].split(": ")[1],
-                "CurrentProtocol": output[6].split(": ")[1],
-                "Transfer": output[7].split(": ")[1],
-                "Uptime": output[8].split(": ")[1]
+                "Hostname": data_dict["Hostname"],
+                "IP": data_dict["IP"],
+                "Country": data_dict["Country"],
+                "City": data_dict["City"],
+                "CurrentTechnology": data_dict["Current technology"],
+                "CurrentProtocol": data_dict["Current protocol"],
+                "Transfer": data_dict["Transfer"],
+                "Uptime": data_dict["Uptime"]
             }
         
     async def loginCallback(self, url: str):
